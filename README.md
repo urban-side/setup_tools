@@ -27,7 +27,7 @@ make install
 | ★バッテリーアイコン | バッテリーの％を表示 | |
 | ★メニューバーアイコン | 必要に応じて幅を調節する（CLI） | [参考](https://zenn.dev/usagimaru/articles/9c4f45b0f3c906) |
 | ☆Finder | ★拡張子を表示、設定 -> サイドバーから全ての項目を表示 | Raycast: `⌥ F` |
-| ★Terminal | タブ表示、プロファイルの設定 | Raycast: `⌥ T`、設定ファイルあり |
+| ★Terminal | プロファイルの設定 | Raycast: `⌥ T`、設定ファイルあり |
 
 ### アプリ
 

@@ -22,10 +22,10 @@ defaults write -globalDomain NSStatusItemSelectionPadding -int 8
 echo "🚀 Finderでは拡張子を表示するように設定します"
 defaults write com.apple.finder ShowExtension -bool true
 
-echo "🚀 Terminalでタブ表示を有効化し、プロファイルを設定します"
-defaults write AppleWindowTabbingMode -string always
+echo "🚀 Terminalプロファイルを設定します"
 open ./config/myprofile.terminal
-defaults write com.apple.terminal "Default Window Settings" -string "myprofile"
+defaults write com.apple.Terminal "Startup Window Settings" -string "myprofile"
+defaults write com.apple.Terminal "Default Window Settings" -string "myprofile"
 
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
 killall Dock
