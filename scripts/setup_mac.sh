@@ -31,6 +31,6 @@ echo "🔁 変更を適用するためにシステムをリフレッシュしま
 killall Dock
 killall Finder
 killall SystemUIServer
-killall Terminal
+# killall Terminal
 
 echo "Macの設定が完了しました！"
