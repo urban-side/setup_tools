@@ -1,0 +1,13 @@
+[user]
+	name = urban_side
+	email = urban_side@outlook.jp
+
+[alias]
+	graph = log --graph --all --color --pretty=format:'%Cgreen%h %cd %Cred%cn %Creset%s %Cred%d'
+	pl = pull
+	rpo = remote prune origin
+	co = checkout
+	b = branch
+
+[pull]
+	rebase = false

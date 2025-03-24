@@ -27,6 +27,9 @@ open ./config/myprofile.terminal
 defaults write com.apple.Terminal "Startup Window Settings" -string "myprofile"
 defaults write com.apple.Terminal "Default Window Settings" -string "myprofile"
 
+echo "🚀 Gitの設定を適用します"
+cp ./config/.gitconfig ~/.gitconfig
+
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
 killall Dock
 killall Finder
