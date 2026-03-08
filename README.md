@@ -45,7 +45,7 @@ make install
 | Tools | 備考 |
 |-------|------|
 | [Homebrew](https://brew.sh/ja/) | |
-| [asdf](https://asdf-vm.com/) |  |
+| [mise](https://mise.jdx.dev/) | バージョン管理 |
 | [Warp](https://www.warp.dev/i) | GitHubでログイン |
 | [Raycast](https://www.raycast.com/) | GitHubでログイン、`⌥ Space` に設定（Spotlightは `^ Space`） |
 | [Visual Studio Code](https://code.visualstudio.com/) | GitHubでログイン、Raycast: `⌥ V` |
