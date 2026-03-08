@@ -2,15 +2,15 @@
 
 新しく買ったMacの設定をするためのツールやコマンド群
 
-## Makefile
+## セットアップ
 
-```bash
-make install
-```
+- 一括実行: `make install` または `bash ./setup.sh`
+- Mac設定のみ: `make setup_mac`
+- アプリインストールのみ: `make install_apps`
 
 - 以下の表にあるもののうち `★` がついているものが設定、インストールされるはず
-  - ダメなら画面から設定してください
-  - 存在しない場合を除き、原則 HomeBrew からダウンロード
+  - うまく適用されない場合は画面から手動設定してください
+  - 存在しない場合を除き、原則 Homebrew からダウンロードします
 - Raycastのショートカットは設定しないので、手動で行うこと
 
 ## 各種アプリ・設定内容
@@ -18,7 +18,7 @@ make install
 ### Macの設定
 
 | 概要 | 設定内容 | 備考 |
-|------|--------|------|
+| --- | --- | --- |
 | ★Dock | デスクトップとDock -> Dockを自動的に表示/非表示 | |
 | ディスプレイ | ディスプレイ設定 -> スペースを拡大 | |
 | ポインタサイズ | 少し大きく・赤くする | |
@@ -31,19 +31,19 @@ make install
 
 ### アプリ
 
-| Tools | 備考 |
-|-------|------|
+| ツール | 備考 |
+| --- | --- |
 | [Google Chrome](https://www.google.com/intl/ja_jp/chrome/) | Raycast: `⌥ G` |
 | [Notion](https://www.notion.com/ja) | Raycast: `⌥ N` |
 | [ChatGPT](https://openai.com/ja-JP/chatgpt/download/) | Raycast: `⌥ L` |
 | [Rectangle Mac](https://rectangleapp.com/) | 設定ファイルあり |
-| [scroll-reverser](https://pilotmoon.com/scrollreverser/) |  |
-| [KeyboardCleanTool](https://folivora.ai/keyboardcleantool) |  |
+| [scroll-reverser](https://pilotmoon.com/scrollreverser/) | |
+| [KeyboardCleanTool](https://folivora.ai/keyboardcleantool) | |
 
 ### 開発系
 
-| Tools | 備考 |
-|-------|------|
+| ツール | 備考 |
+| --- | --- |
 | [Homebrew](https://brew.sh/ja/) | |
 | [mise](https://mise.jdx.dev/) | バージョン管理 |
 | [Warp](https://www.warp.dev/i) | GitHubでログイン |

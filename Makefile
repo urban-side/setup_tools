@@ -1,7 +1,6 @@
 PHONY: install
 install:
-	bash ./scripts/setup_mac.sh
-	bash ./scripts/install_apps.sh
+	bash ./setup.sh
 
 PHONY: setup_mac
 setup_mac:
