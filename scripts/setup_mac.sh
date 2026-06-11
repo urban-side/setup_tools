@@ -30,6 +30,12 @@ defaults write com.apple.Terminal "Default Window Settings" -string "myprofile"
 echo "🚀 Gitの設定を適用します"
 cp ./config/.gitconfig ~/.gitconfig
 
+echo "🚀 zshのエイリアス設定を適用します"
+cp ./config/.zsh_aliases ~/.zsh_aliases
+if ! grep -q '\.zsh_aliases' ~/.zshrc 2>/dev/null; then
+  echo '[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases' >> ~/.zshrc
+fi
+
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
 killall Dock
 killall Finder

@@ -1,0 +1,16 @@
+# zsh のエイリアス・関数定義。~/.zshrc から source される。
+# 配布: scripts/setup_mac.sh が ~/.zsh_aliases にコピーする。
+
+# mkdir -cd <dir>: ディレクトリを作成して移動する（-p 付きなので中間ディレクトリも作成）
+# -cd 以外の引数は本来の mkdir にそのまま委譲する
+mkdir() {
+  if [[ "$1" == "-cd" ]]; then
+    if [[ -z "$2" ]]; then
+      echo "usage: mkdir -cd <dir>" >&2
+      return 1
+    fi
+    command mkdir -p "$2" && cd "$2"
+  else
+    command mkdir "$@"
+  fi
+}
