@@ -36,6 +36,11 @@ if ! grep -q '\.zsh_aliases' ~/.zshrc 2>/dev/null; then
   echo '[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases' >> ~/.zshrc
 fi
 
+echo "🚀 Claude Codeの設定(CLAUDE.md / skills)を適用します"
+mkdir -p ~/.claude/skills
+cp ./config/claude/CLAUDE.md ~/.claude/CLAUDE.md
+cp -R ./config/claude/skills/ ~/.claude/skills/
+
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
 killall Dock
 killall Finder
