@@ -28,7 +28,7 @@
 | ★メニューバーアイコン | 必要に応じて幅を調節する（CLI） | [参考](https://zenn.dev/usagimaru/articles/9c4f45b0f3c906) |
 | ☆Finder | ★拡張子を表示、設定 -> サイドバーから全ての項目を表示 | Raycast: `⌥ F` |
 | ★Terminal | プロファイルの設定 | Raycast: `⌥ T`、設定ファイルあり |
-| ★Claude Code | CLAUDE.md / skills の配置 | 設定ファイルあり |
+| ★Claude Code | CLAUDE.md / AGENT.md / skills の配置 | 設定ファイルあり |
 
 ### アプリ
 

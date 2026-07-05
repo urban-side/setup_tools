@@ -39,6 +39,7 @@ fi
 echo "🚀 Claude Codeの設定(CLAUDE.md / skills)を適用します"
 mkdir -p ~/.claude/skills
 cp ./config/claude/CLAUDE.md ~/.claude/CLAUDE.md
+cp ./config/claude/AGENT.md ~/.claude/AGENT.md
 cp -R ./config/claude/skills/ ~/.claude/skills/
 
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
