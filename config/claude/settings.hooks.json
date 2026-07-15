@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/tanaoroshi-reminder.sh",
+            "timeout": 10,
+            "statusMessage": "棚卸し期限を確認中"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/collect-session.sh",
+            "timeout": 300,
+            "statusMessage": "Skill候補/オープンループを収集中",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

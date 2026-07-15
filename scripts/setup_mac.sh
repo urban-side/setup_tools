@@ -36,11 +36,20 @@ if ! grep -q '\.zsh_aliases' ~/.zshrc 2>/dev/null; then
   echo '[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases' >> ~/.zshrc
 fi
 
-echo "🚀 Claude Codeの設定(CLAUDE.md / skills)を適用します"
-mkdir -p ~/.claude/skills
+echo "🚀 Claude Codeの設定(CLAUDE.md / skills / hooks)を適用します"
+mkdir -p ~/.claude/skills ~/.claude/hooks
 cp ./config/claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp ./config/claude/AGENT.md ~/.claude/AGENT.md
 cp -R ./config/claude/skills/ ~/.claude/skills/
+cp ./config/claude/hooks/*.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.sh
+# settings.json に hooks 設定をマージ(hooks キーのみ上書き、他の個人設定は保持)
+if [ -f ~/.claude/settings.json ]; then
+  jq -s '.[0] * .[1]' ~/.claude/settings.json ./config/claude/settings.hooks.json > ~/.claude/settings.json.tmp \
+    && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
+else
+  cp ./config/claude/settings.hooks.json ~/.claude/settings.json
+fi
 
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
 killall Dock
