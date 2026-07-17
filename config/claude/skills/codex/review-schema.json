@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "codex_review_findings",
+  "description": "Codex レビュー結果の構造化出力。受領側が finding 単位で裏取りループを回すための形式。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "reviewed_scope", "findings", "open_questions"],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "レビュー全体の要約。日本語で3行以内。"
+    },
+    "reviewed_scope": {
+      "type": "string",
+      "description": "実際にレビューした範囲(対象ブランチ/コミット/ファイル群)。読めなかったファイルがあれば明記。"
+    },
+    "findings": {
+      "type": "array",
+      "description": "指摘の一覧。事実主張と意見を混ぜず、1 finding = 1 主張。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "file", "line", "severity", "category", "claim", "evidence", "suggestion", "verify_hint", "confidence"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "F1, F2, ... の連番。"
+          },
+          "file": {
+            "type": "string",
+            "description": "リポジトリルートからの相対パス。特定不能なら \"(unknown)\"。"
+          },
+          "line": {
+            "type": "integer",
+            "description": "該当行番号(範囲なら先頭行)。特定不能なら 0。"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor", "info"],
+            "description": "critical=データ破壊/セキュリティ/本番障害級, major=バグ/仕様逸脱, minor=保守性/性能, info=情報提供。"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["bug", "security", "performance", "maintainability", "style", "question"],
+            "description": "指摘の種別。意見・好みレベルは style、判断を仰ぐものは question。"
+          },
+          "claim": {
+            "type": "string",
+            "description": "検証可能な事実主張を1文で。日本語。「〜のはず」ではなく「XがYのときZになる」の形。"
+          },
+          "evidence": {
+            "type": "string",
+            "description": "根拠となるコード断片の逐字引用(file:line 付き)。引用できない場合はその旨。"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "具体的な修正案。可能ならコード例を含める。日本語。"
+          },
+          "verify_hint": {
+            "type": "string",
+            "description": "受領側が裏取りする方法: 見るべきファイル・grep パターン・実行して確認できるコマンド等。"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "この指摘への自信。low は意見レベルの可能性が高い。"
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "description": "コードだけでは判断できず、人間の判断が必要な論点。",
+      "items": { "type": "string" }
+    }
+  }
+}

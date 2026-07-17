@@ -43,6 +43,15 @@ cp ./config/claude/AGENT.md ~/.claude/AGENT.md
 cp -R ./config/claude/skills/ ~/.claude/skills/
 cp ./config/claude/hooks/*.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.sh
+
+echo "🚀 Codex の AGENTS.md を Claude の AGENT.md への symlink にします(規約の単一ソース化)"
+mkdir -p ~/.codex
+# 既存の実ファイル/ディレクトリは退避してから symlink を張る(再実行時は symlink なので素通り)
+if [ ! -L ~/.codex/AGENTS.md ] && [ -e ~/.codex/AGENTS.md ]; then
+  mv ~/.codex/AGENTS.md ~/.codex/AGENTS.md.bak
+fi
+ln -sfn ~/.claude/AGENT.md ~/.codex/AGENTS.md
+
 # settings.json に hooks 設定をマージ(hooks キーのみ上書き、他の個人設定は保持)
 if [ -f ~/.claude/settings.json ]; then
   jq -s '.[0] * .[1]' ~/.claude/settings.json ./config/claude/settings.hooks.json > ~/.claude/settings.json.tmp \
