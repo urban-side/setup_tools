@@ -40,7 +40,7 @@ description: |
 
 ## 4. 適用(承認分のみ)
 
-- メモリ更新は §7.2 遵守: **本文 + frontmatter description + MEMORY.md 索引を同時更新**。完了追記と相互リンク。
+- メモリ更新は CLAUDE.md のメモリ衛生規律を遵守: **本文 + frontmatter description + MEMORY.md 索引を同時更新**。完了追記と相互リンク。
 - loops.md: 閉じた行は削除し、Open 冒頭の※行に今回の変更サマリ(クローズ数と理由)を残す。裁定で生まれた新規事項を追記。
 - 起票・commit・push 等の外部副作用は、裁定表で個別承認された項目のみ。承認が「文面準備」までなら文面を報告に載せて止まる。
 

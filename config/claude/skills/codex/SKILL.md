@@ -8,7 +8,7 @@ description: |
 
 # Codex
 
-Codex CLI(0.144.5 で検証)を Claude Code のサブとして使うスキル。振り分けの原則は AGENT.md §6 が正。
+Codex CLI(0.144.5 / 0.145.0 で検証)を Claude Code のサブとして使うスキル。Claude×Codex の振り分け基準は本 Skill §2 が正(AGENT.md §6 は一般原則のみ)。
 
 **2026-08-03 に公式 plugin `codex@openai-codex`(openai/codex-plugin-cc)を導入し、役割分担した。全用途を本 Skill で賄わない。**
 
@@ -69,6 +69,7 @@ Codex CLI(0.144.5 で検証)を Claude Code のサブとして使うスキル。
 
 - Claude 主導で使ってよい(K の逐次許可は不要。ただし AGENT.md §6「明確仕様のバルク作業」の範囲に留める — 曖昧な設計判断はここに投げない)
 - 既定で write-capable。読み取り専用にしたい場合はプロンプトで明示する
+- **大規模・広範囲・巻き戻し困難なバルク書込は worktree 隔離を既定とする**(Claude 側で git worktree を切り `--cd` で渡す。既存作業ツリーへの直接書込は、小規模で git diff 検収が容易な修正に限定)— 2026-08-04 棚卸し裁定で旧 AGENT.md §6「worktree 分離」を復活
 - 完了後は **Claude 側が git diff レビュー+テスト実行で検収**してから統合する(subagent 自身は結果を右から左に転送するだけで検証しない)
 - 大きい/長時間タスクは `--background` を付け、`/codex:status` `/codex:result`(K操作)または後続の rescue 呼び出しで確認する
 - 継続指示は `--resume`、独立タスクは `--fresh` を明示する
