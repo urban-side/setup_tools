@@ -9,5 +9,6 @@
 - モデル割当: 最上位モデル(Fable 等)は設計・レビュー・意思決定。サブエージェントへの委譲時は作業難易度に応じたモデルを明示指定する — 機械的な読取・収集・定型変換=haiku / 実装・調査の標準=sonnet(既定) / 高難度実装・検証がクリティカルな作業=opus。迷ったら一段上(下位モデルの失敗はやり直しで高くつく)。
 - PR 作成手順の詳細は create-pr Skill に従う。
 - Codex 連携(振り分け・裏取りループ・書込委譲)は codex Skill に従う。
+- 成果物サニタイズ: Plan モードの最終プラン提示、および既存資料(Confluence・Artifact・仕様書等)の更新時は、依頼がなくても sanitize-artifacts Skill の原則を適用する。最終設計を最初から計画したものとして全面的に書き、会話の経緯を知らない読者に通じない文(「当初案では」「前回版から変更」等)を残さない。
 - メモリ衛生: 本文を更新したら frontmatter description と MEMORY.md 索引行も同時に更新する(乖離が最頻の腐敗モード)。前提が覆ったら旧記述に訂正を追記し相互リンク。チケット完了・PR マージを見届けたら追跡メモに完了を明記する。
 - 定期棚卸しの実施機構: SessionStart hook(tanaoroshi-reminder.sh)が ~/.claude/.last-tanaoroshi の 30 日超過で注意喚起(2026-07-15 導入)。Skill 候補・オープンループは SessionEnd hook(collect-session.sh)が collect-queue.md へ自動収集し、採用判断は棚卸しで K が行う。
