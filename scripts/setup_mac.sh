@@ -28,25 +28,25 @@ log "Finderでは拡張子を表示するように設定します"
 defaults write com.apple.finder ShowExtension -bool true
 
 log "Terminalプロファイルを設定します"
-open "${REPO_ROOT}/config/myprofile.terminal"
+open "${REPO_ROOT}/macos/myprofile.terminal"
 defaults write com.apple.Terminal "Startup Window Settings" -string "myprofile"
 defaults write com.apple.Terminal "Default Window Settings" -string "myprofile"
 
 log "Gitの設定を適用します"
-cp "${REPO_ROOT}/config/.gitconfig" ~/.gitconfig
+cp "${REPO_ROOT}/home/.gitconfig" ~/.gitconfig
 
 log "zshのエイリアス設定を適用します"
-cp "${REPO_ROOT}/config/.zsh_aliases" ~/.zsh_aliases
+cp "${REPO_ROOT}/home/.zsh_aliases" ~/.zsh_aliases
 if ! grep -q '\.zsh_aliases' ~/.zshrc 2>/dev/null; then
   echo '[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases' >> ~/.zshrc
 fi
 
 log "Claude Codeの設定(CLAUDE.md / skills / hooks)を適用します"
 mkdir -p ~/.claude/skills ~/.claude/hooks
-cp "${REPO_ROOT}/config/claude/CLAUDE.md" ~/.claude/CLAUDE.md
-cp "${REPO_ROOT}/config/claude/AGENT.md" ~/.claude/AGENT.md
-cp -R "${REPO_ROOT}/config/claude/skills/" ~/.claude/skills/
-cp "${REPO_ROOT}"/config/claude/hooks/*.sh ~/.claude/hooks/
+cp "${REPO_ROOT}/claude/CLAUDE.md" ~/.claude/CLAUDE.md
+cp "${REPO_ROOT}/claude/AGENT.md" ~/.claude/AGENT.md
+cp -R "${REPO_ROOT}/claude/skills/" ~/.claude/skills/
+cp "${REPO_ROOT}"/claude/hooks/*.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.sh
 
 log "Codex の AGENTS.md を Claude の AGENT.md への symlink にします(規約の単一ソース化)"
@@ -59,10 +59,10 @@ ln -sfn ~/.claude/AGENT.md ~/.codex/AGENTS.md
 
 # settings.json に hooks 設定をマージ(hooks キーのみ上書き、他の個人設定は保持)
 if [ -f ~/.claude/settings.json ]; then
-  jq -s '.[0] * .[1]' ~/.claude/settings.json "${REPO_ROOT}/config/claude/settings.hooks.json" > ~/.claude/settings.json.tmp \
+  jq -s '.[0] * .[1]' ~/.claude/settings.json "${REPO_ROOT}/claude/settings.hooks.json" > ~/.claude/settings.json.tmp \
     && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
 else
-  cp "${REPO_ROOT}/config/claude/settings.hooks.json" ~/.claude/settings.json
+  cp "${REPO_ROOT}/claude/settings.hooks.json" ~/.claude/settings.json
 fi
 
 echo "🔁 変更を適用するためにシステムをリフレッシュします"
