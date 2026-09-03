@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IVR ログレポート 使い方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --ground:   #f2f5fa;
+  --surface:  #ffffff;
+  --sunken:   #eef2f9;
+  --line:     #dde3ef;
+  --line-soft:#e8edf5;
+  --ink:      #111c3d;
+  --header:   #111c3d;
+  --body:     #29334c;
+  --muted:    #5c6780;
+  --accent:   #2563eb;
+  --accent-bg:#eaf1ff;
+  --ok:       #0f7a5a;
+  --ok-bg:    #e6f5ee;
+  --no:       #b23c30;
+  --no-bg:    #fbeceb;
+  --warn:     #92600d;
+  --warn-bg:  #fdf3e2;
+  --shadow:   0 1px 3px rgba(17, 28, 61, .08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #0c1220;
+    --surface:  #141c2e;
+    --sunken:   #1b2438;
+    --line:     #28324a;
+    --line-soft:#212b41;
+    --ink:      #e8edf7;
+    --header:   #1b2745;
+    --body:     #c5cee0;
+    --muted:    #93a0bb;
+    --accent:   #7aa7f5;
+    --accent-bg:#1a2540;
+    --ok:       #48c69a;
+    --ok-bg:    #14302a;
+    --no:       #e88374;
+    --no-bg:    #35201d;
+    --warn:     #d8a55a;
+    --warn-bg:  #322616;
+    --shadow:   0 1px 3px rgba(0, 0, 0, .35);
+  }
+}
+:root[data-theme="dark"] {
+  --ground:   #0c1220;
+  --surface:  #141c2e;
+  --sunken:   #1b2438;
+  --line:     #28324a;
+  --line-soft:#212b41;
+  --ink:      #e8edf7;
+  --header:   #1b2745;
+  --body:     #c5cee0;
+  --muted:    #93a0bb;
+  --accent:   #7aa7f5;
+  --accent-bg:#1a2540;
+  --ok:       #48c69a;
+  --ok-bg:    #14302a;
+  --no:       #e88374;
+  --no-bg:    #35201d;
+  --warn:     #d8a55a;
+  --warn-bg:  #322616;
+  --shadow:   0 1px 3px rgba(0, 0, 0, .35);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--body);
+  font-family: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  font-size: 15px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 26px 20px 72px; }
+p, li { max-width: 68ch; }
+
+h1, h2, h3 {
+  font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+code, kbd, .mono, pre {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-ligatures: none;
+}
+
+/* ---- ヘッダ（生成されるレポートと同じ意匠） ---- */
+header.page {
+  background: var(--header);
+  border-radius: 14px;
+  padding: 30px 32px 26px;
+  margin-bottom: 20px;
+}
+header.page h1 { color: #fff; font-size: 25px; line-height: 1.45; letter-spacing: .01em; }
+header.page .lede { color: #c3cfe9; font-size: 14px; margin: 8px 0 0; max-width: 60ch; }
+header.page .lede b { color: #fff; font-weight: 700; }
+header.page .req {
+  margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,.15);
+  color: #aab8d8; font-size: 12.5px;
+}
+header.page .req b { color: #fff; }
+header.page .req code { color: #dbe4fa; background: rgba(255,255,255,.1); }
+
+/* ---- 目次 ---- */
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+nav.toc a {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 15px 6px 12px; font-size: 12.5px; color: var(--body); text-decoration: none;
+}
+nav.toc a .n {
+  font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px;
+  color: var(--accent); font-weight: 500;
+}
+nav.toc a:hover { border-color: var(--accent); color: var(--ink); }
+
+/* ---- セクション ---- */
+section {
+  background: var(--surface); border: 1px solid var(--line-soft); border-radius: 12px;
+  padding: 24px 28px 28px; margin-bottom: 20px; box-shadow: var(--shadow);
+}
+section > h2 {
+  font-size: 18px; border-left: 4px solid var(--accent); padding-left: 12px;
+  margin-bottom: 18px; line-height: 1.5;
+}
+section > h2 .n {
+  font-family: "Geist Mono", ui-monospace, monospace; font-size: 13px;
+  color: var(--accent); margin-right: 9px; font-weight: 500;
+}
+h3 { font-size: 15.5px; margin: 30px 0 8px; }
+h3:first-of-type { margin-top: 6px; }
+h4 { font-size: 13.5px; color: var(--ink); margin: 20px 0 6px; font-weight: 700; }
+section > p:first-of-type { margin-top: 0; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 1.35em; }
+li { margin-bottom: 6px; }
+b, strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+code {
+  background: var(--sunken); border: 1px solid var(--line-soft); border-radius: 4px;
+  padding: .1em .4em; font-size: .855em; color: var(--ink); white-space: nowrap;
+}
+b code, strong code { color: var(--ink); }
+
+/* ---- コマンド ---- */
+.cmd { margin: 0 0 16px; }
+.cmd figcaption { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+pre {
+  margin: 0; background: var(--sunken); border: 1px solid var(--line);
+  border-radius: 9px; padding: 14px 16px; overflow-x: auto;
+  font-size: 12.75px; line-height: 1.75; color: var(--ink);
+}
+pre .c { color: var(--muted); }
+pre .p { color: var(--accent); }
+
+/* ---- 表 ---- */
+.tw { overflow-x: auto; margin: 0 0 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+th { background: var(--sunken); color: var(--ink); font-size: 12px; font-weight: 700; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+td code { white-space: nowrap; }
+td.k { white-space: nowrap; }
+
+/* ---- 経路 A / B ---- */
+.routes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 18px; }
+.route { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 14px; background: var(--surface); }
+.route.a { border-color: color-mix(in srgb, var(--no) 35%, var(--line)); }
+.route.b { border-color: color-mix(in srgb, var(--ok) 35%, var(--line)); }
+.route h4 { margin: 0 0 3px; font-size: 14.5px; }
+.route .sub { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+.route dl { margin: 0; font-size: 13px; }
+.route dt { font-size: 11.5px; color: var(--muted); letter-spacing: .04em; margin-top: 10px; }
+.route dd { margin: 1px 0 0; color: var(--body); line-height: 1.65; }
+.route dd b { color: var(--ink); }
+.verdict {
+  display: inline-block; margin-top: 15px; padding: 5px 12px; border-radius: 7px;
+  font-size: 12.5px; font-weight: 700;
+}
+.route.a .verdict { background: var(--no-bg); color: var(--no); }
+.route.b .verdict { background: var(--ok-bg); color: var(--ok); }
+
+/* ---- 注記 ---- */
+.note {
+  border-left: 3px solid var(--accent); background: var(--accent-bg);
+  border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 0 0 16px; font-size: 13.5px;
+}
+.note.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.note p:last-child { margin-bottom: 0; }
+.note .lbl { display: block; font-size: 11.5px; letter-spacing: .06em; color: var(--muted); margin-bottom: 3px; }
+
+.tag { display: inline-block; padding: 1px 8px; border-radius: 5px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.tag.ok { background: var(--ok-bg); color: var(--ok); }
+.tag.no { background: var(--no-bg); color: var(--no); }
+
+.tree { font-size: 12.5px; line-height: 1.95; }
+.tree .c { color: var(--muted); }
+
+footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 10px; }
+
+@media (max-width: 640px) {
+  body { font-size: 14.5px; }
+  .wrap { padding: 18px 14px 56px; }
+  header.page { padding: 24px 20px 22px; }
+  header.page h1 { font-size: 21px; }
+  section { padding: 20px 18px 24px; }
+  .routes { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <h1>IVR ログレポート 使い方</h1>
+  <p class="lede">IVRのコールログ CSV から、<b>電話番号登録率のレポート</b>を作るツールです。
+  CSV を渡して実行すると、下の 3 つが出ます（欲しいものだけ選べます）。</p>
+  <p class="req"><b>必要なもの: Python 3.9 以上だけ。</b>
+  Mac に最初から入っている Python で動くので、インストールは何も要りません
+  （ターミナルで <code>python3 -V</code> と打つと確認できます）。</p>
+</header>
+
+<nav class="toc">
+  <a href="#s1"><span class="n">1</span>Claude Code から使う</a>
+  <a href="#s2"><span class="n">2</span>ターミナルから使う</a>
+  <a href="#s3"><span class="n">3</span>レポートの読み方</a>
+  <a href="#s4"><span class="n">4</span>困ったとき</a>
+  <a href="#s5"><span class="n">5</span>中身の構成</a>
+</nav>
+
+<section>
+  <h2>出てくるもの</h2>
+  <div class="tw">
+  <table>
+    <thead><tr><th>出力</th><th>中身</th><th>使いどころ</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k"><b>HTML</b></td>
+        <td>全体／平日／休日のタブ切替、グラフ付きの 1 ファイル</td>
+        <td>共有・報告。そのままブラウザで開ける</td>
+      </tr>
+      <tr>
+        <td class="k"><b>Markdown</b></td>
+        <td>同じ数字のテキスト版</td>
+        <td>Slack・Confluence・チケットに貼る</td>
+      </tr>
+      <tr>
+        <td class="k"><b>CSV</b></td>
+        <td>離脱者（登録に至らなかった着信）の一覧</td>
+        <td>折り返し架電の検討</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p>ログ CSV は <code>input_logs/</code> に置くと分かりやすく、出力は
+  <code>output/</code> の下に<b>実行した日時のフォルダ</b>ができて、その中に入ります
+  （例: <code>output/20260827-181903/</code>）。前に作ったレポートを上書きしないので、
+  条件を変えて何度も試して見比べられます。</p>
+</section>
+
+<section id="s1">
+  <h2><span class="n">1</span>使い方（Claude Code から・おすすめ）</h2>
+  <p>同梱の Skill を入れると、「IVR のレポート作って」と言うだけで済みます。</p>
+
+  <h3>入れる（初回だけ）</h3>
+  <p>このフォルダごと丸ごとコピーします。</p>
+  <figure class="cmd">
+<pre>mkdir -p ~/.claude/skills
+cp -r ivr-report ~/.claude/skills/</pre>
+  </figure>
+
+  <h3>使う</h3>
+  <p>Claude Code に話しかけます。</p>
+  <div class="note">
+    <span class="lbl">話しかけかたの例</span>
+    <p>IVR のレポートを作って。ログは <code>~/Downloads/report.csv</code></p>
+  </div>
+  <p>形式（HTML / Markdown / CSV）はその場で聞かれるので、選んでください。
+  期間を絞りたい、テスト番号を除きたい、といった要望もそのまま伝えれば通じます。</p>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>使い方（ターミナルから直接）</h2>
+  <p>このフォルダに移動して実行します。</p>
+  <figure class="cmd">
+<pre>python3 ivr_report.py ~/Downloads/report.csv</pre>
+  </figure>
+  <p><code>output/&lt;実行日時&gt;/</code> に 3 種類のファイルが出ます。実行すると
+  作られた場所が表示されます。まず試すなら同梱のサンプルで。</p>
+  <figure class="cmd">
+<pre>python3 ivr_report.py input_logs/sample_ivr_log.csv --title "サンプル"</pre>
+  </figure>
+
+  <h3>よく使う指定</h3>
+  <figure class="cmd">
+<pre><span class="c"># HTML と 離脱者CSV だけ、見出しに会社名を入れる</span>
+python3 ivr_report.py input_logs/report.csv <span class="p">--format</span> html,csv <span class="p">--title</span> "拠点A（TENANT_A）"
+
+<span class="c"># 複数月をまとめる（同じ通話が両方に入っていても ID で重複排除します）</span>
+python3 ivr_report.py input_logs/5月.csv input_logs/6月.csv <span class="p">--title</span> "拠点A（TENANT_A）"
+
+<span class="c"># 期間を絞る</span>
+python3 ivr_report.py input_logs/report.csv <span class="p">--start</span> 2026-06-01 <span class="p">--end</span> 2026-06-30
+
+<span class="c"># 出力先を変える</span>
+python3 ivr_report.py input_logs/report.csv <span class="p">--out</span> ~/Desktop/ivr</pre>
+  </figure>
+
+  <h3>指定できるもの一覧</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>オプション</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><code>--format</code></td><td><code>html</code> / <code>md</code> / <code>csv</code> をカンマ区切り（既定: 3 つとも）</td></tr>
+      <tr><td class="k"><code>--title</code></td><td>レポート見出しの副題（例: <code>"拠点A（TENANT_A）"</code>）</td></tr>
+      <tr><td class="k"><code>--start</code> / <code>--end</code></td><td>集計期間（既定: ログに入っている全期間）</td></tr>
+      <tr><td class="k"><code>--out</code></td><td>出力先フォルダ（既定: <code>output</code>）。この下に実行日時のフォルダを作ります</td></tr>
+      <tr><td class="k"><code>--exclude-dates</code></td><td>異常な着信があった日。「平常ベース」から外し、内訳を別に載せます</td></tr>
+      <tr><td class="k"><code>--missing-dates</code></td><td>ログが取れていない日。日平均などの割り算の分母から外します</td></tr>
+      <tr><td class="k"><code>--test-sources</code></td><td>テスト用の発信元番号。主集計から分けて別に載せます</td></tr>
+      <tr><td class="k"><code>--md-days</code></td><td>Markdown の日別表を直近 N 日だけにする（長期間のとき）</td></tr>
+      <tr><td class="k"><code>--prefix</code></td><td>出力ファイル名の頭（既定: <code>ivr_report</code>）</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><code>python3 ivr_report.py --help</code> でも確認できます。</p>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>レポートの読み方</h2>
+
+  <h3>登録率</h3>
+  <p><b>登録</b>とは、IVR のステップ <code>"1-7"</code>（電話番号通知）の webhook が
+  <code>200 / result=OK</code> で完了したこと、つまり<b>顧客情報が CRM に渡ったこと</b>です。</p>
+  <p><b>登録率 ＝ 登録数 ÷ 受電数</b>。0 秒で切れた着信（IVR が応答する前の切断）を分母から
+  外した「0秒除外」の値も併記しています。どちらを見るかは用途しだいですが、
+  <b>全着信ベースを主指標</b>、0秒除外を補助として扱ってください。</p>
+
+  <h3>経路 A と経路 B</h3>
+  <p>同じ IVR への着信でも、<b>発信元番号に何が乗ってくるかが 2 通り</b>あります。
+  これがレポート全体で一番大事な区別です。</p>
+
+  <div class="routes">
+    <div class="route a">
+      <h4>A: 親番号媒体</h4>
+      <p class="sub">CTI（CT-e1）を経由して転送</p>
+      <dl>
+        <dt>発信元番号</dt>
+        <dd><code>0120</code> / <code>0800</code> の<b>媒体のフリーダイヤル</b></dd>
+        <dt>誰からの電話か</dt>
+        <dd><b>分からない</b>。番号が媒体のものに置き換わる</dd>
+      </dl>
+      <span class="verdict">折り返し架電はできない</span>
+    </div>
+    <div class="route b">
+      <h4>B: 子番号直着信</h4>
+      <p class="sub">IVR へ直接着信</p>
+      <dl>
+        <dt>発信元番号</dt>
+        <dd><b>顧客本人の番号</b>がそのまま乗る</dd>
+        <dt>誰からの電話か</dt>
+        <dd>ほぼ<b>本人と分かる</b></dd>
+      </dl>
+      <span class="verdict">折り返し架電に使える</span>
+    </div>
+  </div>
+
+  <p>そのため、</p>
+  <ul>
+    <li><b>人数</b>（何人が電話してきたか）が数えられるのは B 経路だけです。
+      レポートの「B: 子番号直着信の人物登録率」がその主指標です。</li>
+    <li>A 経路の人数は原理的に不明なので、全体のユニーク登録率は
+      「◯◯〜◯◯%」の<b>レンジ推定</b>として参考値で出しています。</li>
+    <li>B 経路の受電が極端に少ないときは、人数系の指標を「算出対象外」と表示します。</li>
+  </ul>
+
+  <h3>離脱者 CSV</h3>
+  <p><b>離脱</b>＝ 登録に至らなかった着信すべてです。IVR で「3」を押して自分から終了した
+  ものも含みます（CRM には何も残らないため）。</p>
+  <p>CSV の <code>折り返し架電</code> 列を見てください。</p>
+  <ul>
+    <li><span class="tag ok">可</span> … 経路 B。発信元がほぼ本人番号なので、そのまま架電先に使えます。</li>
+    <li><span class="tag no">不可（媒体FD）</span> … 経路 A。番号は載っていますが<b>媒体のフリーダイヤル</b>です。
+      ここに架電しても顧客には繋がりません。</li>
+  </ul>
+  <p><code>最終到達ステップ</code> は、その通話が IVR のどこまで進んだかです。
+  <code>(ステップ記録なし)</code> はどのステップも記録されなかった通話で、
+  通話秒数が数十秒あるものも含まれます（0 秒切断とは限りません）。</p>
+  <p>CSV は Excel でそのまま開けます（BOM 付き UTF-8）。</p>
+
+  <h3>全体 / 平日 / 休日</h3>
+  <p>HTML レポート上部のタブで切り替わります。平日・休日は<b>着信のカレンダー日付</b>で
+  判定しています（祝日は自動判定）。</p>
+  <div class="note warn">
+    <span class="lbl">日跨ぎの注意</span>
+    <p>IVR の夜間帯は日を跨ぐため、たとえば<b>月曜 0〜8 時の着信（日曜夜シフトの後半）は
+    平日側</b>に入ります。1 夜を 1 行として見たい場合は、レポート下部の
+    <b>「夜間シフト単位」</b>の表を使ってください。</p>
+  </div>
+
+  <h3>異常日・欠測日</h3>
+  <p>特定の日に普段と桁の違う着信があった場合、<code>--exclude-dates</code> でその日を指定すると、
+  主指標を「平常ベース」（その日を除いた値）にし、異常日の内訳を別セクションに出します。
+  「異常日込み」の値も併記されるので、両方を見て判断できます。</p>
+  <p>ログのエクスポートが失敗して 0 件になっている日は <code>--missing-dates</code> で指定します。
+  その日は日平均などの分母から外れ、日別表に欠測フラグが付きます。</p>
+  <p>なお <code>--exclude-dates</code> を使うと、レポートの離脱数（異常日を除いた平常ベース）と
+  離脱者 CSV の行数（異常日も架電対象として含む）がずれます。実行したときに両方の数が表示されます。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>困ったとき</h2>
+  <div class="tw">
+  <table>
+    <thead><tr><th>メッセージ</th><th>意味と対処</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><code>ヘッダ列が見つかりません</code></td>
+        <td>IVR のコールログではないファイルです。CT-e1 の通話呼詳細などと取り違えていませんか</td></tr>
+      <tr><td class="k"><code>列の解決に失敗（候補2件）</code></td>
+        <td>ヘッダに <code>1-7…電話番号通知</code> を含む列が複数あります。エラーに実際のヘッダが出るので相談してください</td></tr>
+      <tr><td class="k"><code>集計対象の着信がありません</code></td>
+        <td><code>--start</code> / <code>--end</code> がログの範囲外です。エラーにログの実際の期間が出ます</td></tr>
+      <tr><td class="k"><code>文字コードを判別できません</code></td>
+        <td>UTF-8 でも CP932 でもない CSV です。書き出し直してください</td></tr>
+      <tr><td class="k"><code>未知の出力形式</code></td>
+        <td><code>--format</code> に指定できるのは <code>html</code> / <code>md</code> / <code>csv</code> です</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>HTML が真っ白</b>な場合は、ファイルをブラウザにドラッグ＆ドロップしてみてください。
+  HTML は外部ファイルに依存しない 1 枚もので、そのまま添付・共有できます。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>中身の構成</h2>
+  <figure class="cmd">
+<pre class="tree">ivr-report/
+├── README.html               <span class="c">このファイル</span>
+├── SKILL.md                  <span class="c">Claude Code 用スキルの定義</span>
+├── ivr_report.py             <span class="c">実行するのはこれ</span>
+├── lib/
+│   ├── analyze.py            <span class="c">CSV を読んで集計する</span>
+│   ├── holidays.py           <span class="c">日本の祝日を年から算出する</span>
+│   ├── render_html.py        <span class="c">HTML の共通部品（グラフ・表・CSS）</span>
+│   ├── render_html_tabs.py   <span class="c">HTML レポート本体</span>
+│   ├── render_markdown.py    <span class="c">Markdown レポート</span>
+│   └── render_csv.py         <span class="c">離脱者一覧 CSV</span>
+├── input_logs/               <span class="c">ログ CSV の置き場</span>
+│   └── sample_ivr_log.csv    <span class="c">動作確認用のサンプル（合成データ）</span>
+└── output/                   <span class="c">レポートの出力先</span>
+    └── 20260827-181903/      <span class="c">実行するたびに日時フォルダが増えます</span></pre>
+  </figure>
+  <p>このフォルダは<b>そのまま Claude Code のスキルとしても置ける</b>構成です
+  （<code>SKILL.md</code> が同居しているため）。ターミナルから直接使う場合も同じフォルダで動きます。</p>
+  <p>サンプルは動作確認用に生成した架空のデータで、実在の顧客番号は含みません。</p>
+
+  <h3>扱えるログについて</h3>
+  <p>テナントによって CSV の列構成が違うため、列は<b>位置ではなくヘッダ名で解決</b>して
+  います。必要な列が見つからないときは、推測で続けずエラーで止まります。
+  文字コードは UTF-8 / CP932 を自動判別します。</p>
+
+  <h3>集計できないこと</h3>
+  <p>このツールが読むのは <b>IVR のコールログだけ</b>です。次は分かりません。</p>
+  <ul>
+    <li><b>A 経路の着信が誰からか</b> — 発信元が媒体のフリーダイヤルに置き換わっているため。
+      CTI（CT-e1）側の通話呼詳細と突き合わせる必要があります。</li>
+    <li><b>どの広告・キャンペーン経由か</b> — IVR ログには媒体のフリーダイヤルまでしか
+      残りません。</li>
+  </ul>
+</section>
+
+<footer>IVR ログレポート — このマニュアルは単体で開けます</footer>
+
+</div>
+</body>
+</html>
