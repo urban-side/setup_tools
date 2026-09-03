@@ -1,0 +1,27 @@
+# brew bundle --file で適用する。install するものはここだけを見ればよい。
+# 削除は自動で行わない(--cleanup は使わない)。アンインストールは手動で。
+
+# 手動で /Applications に入れたアプリを Homebrew の管理下に取り込む。
+# これが無いと、既存アプリがある cask で "It seems there is already an App at"
+# となって bundle 全体が失敗する。
+cask_args adopt: true
+
+# 開発ツール
+brew "mise"
+
+# アプリケーション
+cask "google-chrome"
+cask "notion"
+cask "chatgpt"
+cask "rectangle"
+cask "scroll-reverser"
+cask "keyboardcleantool"
+
+# 開発系
+cask "warp"
+cask "raycast"
+cask "visual-studio-code"
+cask "cursor"
+cask "docker-desktop"
+cask "postman"
+cask "tableplus"
