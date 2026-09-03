@@ -1,11 +1,21 @@
-.PHONY: install
+.PHONY: install macos home claude apps
+
+## 全部入り
 install:
 	bash ./setup.sh
 
-.PHONY: setup_mac
-setup_mac:
-	bash ./scripts/setup_mac.sh
+## macOS の defaults と Terminal プロファイル
+macos:
+	bash ./macos/install.sh
 
-.PHONY: install_apps
-install_apps:
-	bash ./scripts/install_apps.sh
+## ~/ 直下の dotfiles
+home:
+	bash ./home/install.sh
+
+## Claude Code / Codex の設定
+claude:
+	bash ./claude/install.sh
+
+## Homebrew でアプリと開発ツール
+apps:
+	bash ./apps/install.sh
