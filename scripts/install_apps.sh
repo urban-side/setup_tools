@@ -1,7 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "🚀 アプリのインストールを開始します..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/common.sh
+source "${SCRIPT_DIR}/../lib/common.sh"
+
+log "アプリのインストールを開始します..."
 
 # Homebrewがインストールされているか確認
 if ! command -v brew &>/dev/null; then
@@ -17,15 +21,15 @@ if ! command -v brew &>/dev/null; then
     eval "$(/usr/local/bin/brew shellenv)"
   fi
 else
-  echo "✅ Homebrewは既にインストールされています"
+  ok "Homebrewは既にインストールされています"
 fi
 
 install_formula_if_missing() {
   local formula="$1"
   if brew list --formula "$formula" &>/dev/null; then
-    echo "✅ ${formula} は既にインストールされています"
+    ok "${formula} は既にインストールされています"
   else
-    echo "🔄 ${formula} をインストールしています..."
+    log "${formula} をインストールしています..."
     brew install "$formula"
   fi
 }
@@ -33,9 +37,9 @@ install_formula_if_missing() {
 install_cask_if_missing() {
   local cask="$1"
   if brew list --cask "$cask" &>/dev/null; then
-    echo "✅ ${cask} は既にインストールされています"
+    ok "${cask} は既にインストールされています"
   else
-    echo "🔄 ${cask} をインストールしています..."
+    log "${cask} をインストールしています..."
     local output=""
     local status=0
     set +e
@@ -50,7 +54,7 @@ install_cask_if_missing() {
 
     # Homebrew管理外でも /Applications に既存アプリがある場合はスキップ扱いにする
     if echo "$output" | grep -Eq "already an App at|already installed"; then
-      echo "⚠️ ${cask} は既存アプリを検出したためスキップします"
+      warn "${cask} は既存アプリを検出したためスキップします"
       return 0
     fi
 
@@ -66,10 +70,10 @@ ensure_mise_activation() {
     touch "$shell_rc"
   fi
   if grep -Fqx "$activation_line" "$shell_rc"; then
-    echo "✅ zsh の mise 有効化設定は既に存在します"
+    ok "zsh の mise 有効化設定は既に存在します"
   else
     echo "$activation_line" >>"$shell_rc"
-    echo "✅ zsh に mise の有効化設定を追加しました"
+    ok "zsh に mise の有効化設定を追加しました"
   fi
 }
 
