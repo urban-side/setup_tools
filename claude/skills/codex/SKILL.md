@@ -37,6 +37,7 @@ Codex CLI(0.144.5 / 0.145.0 で検証)を Claude Code のサブとして使う�
 注意(0.144.5 実測):
 - `codex exec review --output-schema` は **schema を無視して自然文を返す**。構造化が欲しいときは必ず③の `codex exec` + レビュー指示プロンプト方式を使う(公式 plugin の `/codex:review` は独自 schema・独自実行系で構造化しているので、それで足りるなら公式コマンドを K に案内する)
 - `--full-auto` は help から隠された(非推奨化の兆候)ため使わない。承認プロンプトで詰まる場合のみ `-c approval_policy=on-failure` を付与
+- **バックグラウンド／非対話実行では `< /dev/null` を必ず付ける。** 付けないと `Reading additional input from stdin...` で追加入力を待ち続けて進まない(0.154.0 で実測・2026-09-17)。既定の推論強度は `~/.codex/config.toml` の `model_reasoning_effort`(現在 low)。設計相談では `-c model_reasoning_effort=high` を付ける
 
 ## §2 振り分け基準(いつ Claude / いつ Codex)
 
