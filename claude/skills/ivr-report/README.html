@@ -359,7 +359,7 @@ python3 ivr_report.py input_logs/report.csv <span class="p">--out</span> ~/Deskt
   <div class="routes">
     <div class="route a">
       <h4>A: 親番号媒体</h4>
-      <p class="sub">CTI（CT-e1）を経由して転送</p>
+      <p class="sub">CTIを経由して転送</p>
       <dl>
         <dt>発信元番号</dt>
         <dd><code>0120</code> / <code>0800</code> の<b>媒体のフリーダイヤル</b></dd>
@@ -431,7 +431,7 @@ python3 ivr_report.py input_logs/report.csv <span class="p">--out</span> ~/Deskt
     <thead><tr><th>メッセージ</th><th>意味と対処</th></tr></thead>
     <tbody>
       <tr><td class="k"><code>ヘッダ列が見つかりません</code></td>
-        <td>IVR のコールログではないファイルです。CT-e1 の通話呼詳細などと取り違えていませんか</td></tr>
+        <td>IVR のコールログではないファイルです。CTI の通話呼詳細などと取り違えていませんか</td></tr>
       <tr><td class="k"><code>列の解決に失敗（候補2件）</code></td>
         <td>ヘッダに <code>1-7…電話番号通知</code> を含む列が複数あります。エラーに実際のヘッダが出るので相談してください</td></tr>
       <tr><td class="k"><code>集計対象の着信がありません</code></td>
@@ -479,7 +479,7 @@ python3 ivr_report.py input_logs/report.csv <span class="p">--out</span> ~/Deskt
   <p>このツールが読むのは <b>IVR のコールログだけ</b>です。次は分かりません。</p>
   <ul>
     <li><b>A 経路の着信が誰からか</b> — 発信元が媒体のフリーダイヤルに置き換わっているため。
-      CTI（CT-e1）側の通話呼詳細と突き合わせる必要があります。</li>
+      CTI側の通話呼詳細と突き合わせる必要があります。</li>
     <li><b>どの広告・キャンペーン経由か</b> — IVR ログには媒体のフリーダイヤルまでしか
       残りません。</li>
   </ul>

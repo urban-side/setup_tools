@@ -24,7 +24,7 @@ from render_html import (
 
 B_DEGENERATE_THRESHOLD = 50
 
-A_TITLE, A_SUB = 'A: 親番号媒体', 'CT-e1経由・発信元は媒体のフリーダイヤル'
+A_TITLE, A_SUB = 'A: 親番号媒体', 'CTI経由・発信元は媒体のフリーダイヤル'
 B_TITLE, B_SUB = 'B: 子番号直着信', '顧客番号透過'
 A_SHORT, B_SHORT = '親番号媒体', '子番号直着信'
 A_CHART_LABEL, B_CHART_LABEL = 'A(親番号媒体)', 'B(子番号直着信)'
@@ -36,7 +36,7 @@ DAY_BOUNDARY_NOTE = (
 
 DEGENERATE_NOTE = (
     'B経路（顧客番号透過）の着信が僅少のため人物ファネルは算出対象外。'
-    '全着信がCT-e1経由（発信元=媒体フリーダイヤル）のため、人数の識別は1-6入力番号でのみ可能。'
+    '全着信がCTI経由（発信元=媒体フリーダイヤル）のため、人数の識別は1-6入力番号でのみ可能。'
 )
 
 TAB_LABELS = dict(all='全体', weekday='平日（月〜金・祝日除く）', holiday='休日（土日祝）')
@@ -95,7 +95,7 @@ def route_compare_table_v2(D, degrade_b):
     )
     return f'''<table class="routecmp">
 <tr><th></th><th>{A_TITLE}<br><span>{A_SUB}</span></th><th>{B_TITLE}<br><span>{B_SUB}</span></th></tr>
-<tr><td class="lbl">発信元番号の意味</td><td>媒体のフリーダイヤル（0120/0800・{A["src_count"]}本）<br><b>人物特定不可（CT-e1経由）</b></td><td>顧客番号がそのまま透過<br><b>ほぼ本人の番号</b></td></tr>
+<tr><td class="lbl">発信元番号の意味</td><td>媒体のフリーダイヤル（0120/0800・{A["src_count"]}本）<br><b>人物特定不可（CTI経由）</b></td><td>顧客番号がそのまま透過<br><b>ほぼ本人の番号</b></td></tr>
 <tr><td class="lbl">受電数</td><td>{fmt(A["calls"])} 件（{safe_pct(A["calls"], t["calls"])}）</td><td>{fmt(B["calls"])} 件（{safe_pct(B["calls"], t["calls"])}）</td></tr>
 <tr><td class="lbl">0秒切断</td><td>{fmt(A["zero"])} 件（{safe_pct(A["zero"], A["calls"])}）転送リトライ由来か</td><td>{fmt(B["zero"])} 件（{safe_pct(B["zero"], B["calls"])}）</td></tr>
 <tr><td class="lbl">登録数（1-7 OK）</td><td class="ok">{fmt(A["ok"])} 件</td><td class="ok">{fmt(B["ok"])} 件</td></tr>
@@ -110,11 +110,11 @@ def route_section(D, degrade_b):
     lede = (DEGENERATE_NOTE if degrade_b else
             f'「受電した人のうち登録してくれた人の割合」として最も信頼できるのは <b>{B_TITLE}の人物登録率 {pct(t["rate_b_person"])}</b>。')
     parts = [f'''<h2>経路別サマリ — {A_TITLE} と {B_TITLE} は別物（平常ベース）</h2>
-<p class="desc">発信元 0120/0800 = 媒体（CT-e1）側のフリーダイヤルからの着信（A）と判定。</p>
+<p class="desc">発信元 0120/0800 = 媒体（CTI）側のフリーダイヤルからの着信（A）と判定。</p>
 {route_compare_table_v2(D, degrade_b)}
 <div class="info">💡 <b>読み方</b>: {lede}
 {A_CHART_LABEL}はコールベースの登録率（{pct(R["A"]["rate_all"])}、0秒除外 {pct(R["A"]["rate_nz"])}）と登録人数 {fmt(t["a_uniq_reg"])} 人のみ追跡。
-{A_CHART_LABEL}の0秒切断率 {safe_pct(R["A"]["zero"], R["A"]["calls"])} はCT-e1側の品質指標として別途監視する価値がある。</div>''']
+{A_CHART_LABEL}の0秒切断率 {safe_pct(R["A"]["zero"], R["A"]["calls"])} はCTI側の品質指標として別途監視する価値がある。</div>''']
     if degrade_b:
         parts.append(f'<h3>B経路の人物ファネル・レンジ推定</h3>\n<div class="info">ℹ️ {DEGENERATE_NOTE}</div>')
     else:
@@ -275,7 +275,7 @@ def build_kpis(D, degrade_b):
         kpis.append((f'{B_TITLE}の人物登録率', '算出対象外',
                       f'B受電僅少（{fmt(t["b_calls"])}件 < {B_DEGENERATE_THRESHOLD}）。識別は1-6入力番号のみ'))
         kpis.append(('ユニーク登録人数（1-6入力番号）', fmt(t['uniq_reg']),
-                      '全着信CT-e1経由のためA/B横断のレンジ推定は対象外'
+                      '全着信CTI経由のためA/B横断のレンジ推定は対象外'
                       + (f' ／ 異常日込み {fmt(ti["uniq_reg"])}' if has_anomaly else '')))
         kpis.append(('全体ユニーク登録率', '算出対象外', 'B僅少のためレンジ推定なし。1-6入力番号でのユニーク化のみ'))
     else:

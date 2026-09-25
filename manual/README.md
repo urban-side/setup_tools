@@ -21,7 +21,7 @@
 
 | ファイル | 用途 |
 | --- | --- |
-| `Raycast 2026-01-28 19.08.21_buysell_macbookpro.rayconfig` | 業務用 MacBook Pro |
+| `Raycast 2026-01-28 19.08.21_work_macbookpro.rayconfig` | 業務用 MacBook Pro |
 | `Raycast 2026-03-08 21.48.35_private_macbookair.rayconfig` | 私用 MacBook Air |
 
 1. Raycast を起動する（未インストールなら `make apps` で入る）
