@@ -9,31 +9,35 @@ description: |
 # create-pr
 
 ブランチ作成と PR 作成を規約どおりに行うスキル。Git/PR 規約(ブランチ命名・PR タイトル・テンプレート準拠)の正は本スキル(AGENT.md §5 から参照される)。
-Jira 運用のないリポジトリ(個人 repo 等)では、Jira ID 前提の命名・タイトル形式よりリポジトリの慣習を優先する(AGENT.md §5「リポジトリの慣習が正」)。
+チケット管理は Linear(旧 Jira は参照のみ)。
+チケット運用のないリポジトリ(個人 repo 等)では、チケット ID 前提の命名・タイトル形式よりリポジトリの慣習を優先する(AGENT.md §5「リポジトリの慣習が正」)。
 
 ## 手順
 
-### 1. Jira ticket ID の特定
+### 1. ticket ID の特定
 
-- ユーザー指示・プロジェクトメモリ・作業中チケットから Jira ticket ID（例: `PROJ-1234`）を特定する。
+- ユーザー指示・プロジェクトメモリ・作業中チケットから Linear の Issue ID（例: `TEAM-1234`）を特定する。Linear MCP で実在とステータスを確認する。
+- 移行前の Jira キーしか分からない場合は、Linear で旧キーを検索して Issue ID に読み替える。
 - 特定できない場合は推測せず K に確認する。
 
 ### 2. ブランチ命名
 
-- 原則 `topic/<Jira ticket ID>` または `feat/<Jira ticket ID>`。
+- 原則 `topic/<ticket ID>` または `feat/<ticket ID>`。ブランチ名・タイトルに Issue ID が入っていれば Linear の GitHub 連携が PR を自動で紐付ける。
   - `topic/<ID>`: 統合ブランチ。複数 PR をスタックする開発の基点（topic → main）。
   - `feat/<ID>`: 個別実装ブランチ。単発ならそのまま、スタック開発では topic にぶら下げる。
-  - 派生が複数要る場合は `feat/<ID>-<短いsuffix>` の実績あり（例: `feat/PROJ-1234-user-seed`）。
+  - 派生が複数要る場合は `feat/<ID>-<短いsuffix>` （例: `feat/TEAM-1234-user-seed`）。
+  - 移行前の Jira キーで切ったブランチ・PR は改名しない。Linear へは Issue の links に PR URL を手で足して紐付ける。
 
 ### 3. PR テンプレートの読込（必須・スキップ禁止）
 
 - `gh pr create` の**前に** `.github/pull_request_template.md` と `.github/PULL_REQUEST_TEMPLATE/` ディレクトリを必ず読む。
 - テンプレートが存在する場合、本文はテンプレートの全セクション構成に従う。独自セクションを追加せず、書きたい内容（動作確認の curl 結果等）はテンプレートの該当節の中に収める。
 - テンプレートに監査目的のセクション（AI 利用申告・コンティンジェンシープラン等）がある場合、省略不可。
+- テンプレートにチケット欄が旧 Jira のまま残っている場合は、改訂されるまで Linear Issue の URL を入れる（テンプレート自体はリポジトリの規約なので勝手に変えない）。
 
 ### 4. PR タイトル
 
-- `[<Jira ticket ID>]タイトル`（例: `[PROJ-1234]○○を修正`）。
+- `[<ticket ID>]タイトル`（例: `[TEAM-1234]○○を修正`）。
 - 統合 PR（topic → main）では `[TOPIC]タイトル` の実績あり。
 
 ### 5. （任意・既定スキップ）PR 作成前の codex セカンドオピニオン
@@ -42,6 +46,8 @@ Jira 運用のないリポジトリ(個人 repo 等)では、Jira ID 前提の�
 - 実行する場合は codex Skill の③構造化レビュー（`codex exec` + review-schema.json）を使い、裏取りループで confirmed になった指摘のみ修正してから PR を作成する。opinion は PR 本文に書かず K への報告に回す。
 
 ### 6. 作成と報告
+
+- 作成後、対応する Linear Issue のステータスを PR の状態に合わせる（draft=進行中 / ready=レビュー中）。
 
 - draft / ready はユーザー指示に従う。指示がなければ draft で作成。
 - 完了報告では、テンプレートの各セクションを埋めたことと PR URL を示し、K の元指示との対応を突合せる。

@@ -29,7 +29,7 @@ description: |
 
 ## 2. 裏取り
 
-- loops.md 各行とメモリの追跡事項を、Jira(atlassian MCP)・gh CLI(読み取り)・ローカル repo の git log/grep で照合する。ドメイン別に 4〜5 本のサブエージェントへ委譲。
+- loops.md 各行とメモリの追跡事項を、Linear(linear MCP。移行前の履歴は Jira)・gh CLI(読み取り)・ローカル repo の git log/grep で照合する。ドメイン別に 4〜5 本のサブエージェントへ委譲。
 - ドキュメント(HANDOVER・チケット本文)は鵜呑みにせず、実 PR・実コミット・実コードと突合する(§4)。ローカル repo は最終 fetch 時点の情報である旨を判定に添える。
 - シート実物・GCP 実体などアクセス不能なものは「確認不能」と明記し、推測と事実を峻別する。
 
