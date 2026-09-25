@@ -28,6 +28,11 @@ description: |
   - 派生が複数要る場合は `feat/<ID>-<短いsuffix>` （例: `feat/TEAM-1234-user-seed`）。
   - 移行前の Jira キーで切ったブランチ・PR は改名しない。Linear へは Issue の links に PR URL を手で足して紐付ける。
 
+### 2.5 ベースブランチ（リポジトリごとに違う・必須確認）
+
+- `gh pr create --base` を決める前に、そのリポジトリの直近のマージ済み PR の向きを `gh pr list --state merged --limit 10 --json baseRefName,headRefName` で確認する。
+- `main <- staging` のようにリリース用ブランチを挟む運用のリポジトリでは、実装 PR は `staging <- feat/...` で作り、枝も `origin/staging` から切る。
+
 ### 3. PR テンプレートの読込（必須・スキップ禁止）
 
 - `gh pr create` の**前に** `.github/pull_request_template.md` と `.github/PULL_REQUEST_TEMPLATE/` ディレクトリを必ず読む。
