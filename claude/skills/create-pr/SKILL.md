@@ -33,6 +33,12 @@ description: |
 - `gh pr create --base` を決める前に、そのリポジトリの直近のマージ済み PR の向きを `gh pr list --state merged --limit 10 --json baseRefName,headRefName` で確認する。
 - `main <- staging` のようにリリース用ブランチを挟む運用のリポジトリでは、実装 PR は `staging <- feat/...` で作り、枝も `origin/staging` から切る。
 
+### 2.7 PR の粒度（差分を小さく保つ）
+
+- 1 PR は 1 つの関心事。手書き差分が数百行を超えそうなら、レビュー前に分割する（生成ファイル・boiler 再生成分は行数に数えない）。
+- 分割は `topic/<ID>` の下に `feat/<ID>-<suffix>` を数珠繋ぎにする（下段→上段の順にレビュー・マージ。下段の修正は merge で上段へ反映し、rebase で作り直さない）。
+- 「後でまとめて 1 本」にしない。大きくなってからの分割はスタック載せ替えのコストが高い（同種の差戻しを 3 回受けて追加）。
+
 ### 3. PR テンプレートの読込（必須・スキップ禁止）
 
 - `gh pr create` の**前に** `.github/pull_request_template.md` と `.github/PULL_REQUEST_TEMPLATE/` ディレクトリを必ず読む。
@@ -60,3 +66,4 @@ description: |
 ## 由来
 
 同種の差戻し（テンプレート無視・命名規約違反）を複数回受けたことから、収集→Skill 化ライフサイクルの第 1 号としてスキル化。
+「PR 分割をもっと細かく（topic/feat の数珠繋ぎで単一 PR の差分行を減らす）」を 3 回指摘されたことから §2.7 を追加。
