@@ -1,52 +1,51 @@
 ---
 name: tanaoroshi
 description: |
-  定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ / loops.md 台帳 / Skill /
-  AGENT.md・CLAUDE.md / ~/temp 等の一時作業域 / plans 残骸 / .claude 肥大 / 本仕組み(hook・Skill)自体。
+  定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ / loops.md 台帳 / collect-queue / Skill /
+  AGENT.md・CLAUDE.md / ~/temp 等の一時作業域 / plans・handover 残骸 / .claude 肥大 / 本仕組み(hook・Skill)自体。
   型: 収集→裏取り→裁定表→K承認→適用→検証。
   トリガー: "棚卸し", "/tanaoroshi", SessionStart リマインダー(tanaoroshi-reminder.sh)の期限超過通知
 ---
 
 # 定期棚卸し手順
 
-型: **収集(全読) → 裏取り(一次情報照合) → 分類・裁定表 → K 承認(1ゲート) → 適用 → 検証**。
-初回実施: 2026-07-15(手順の実績はそのセッションの transcript 参照)。
+型: **収集(全読) → 裏取り(一次情報照合) → 裁定表 → K 承認(1 ゲート) → 適用 → 検証**。
+実績: 2026-07-15 / 08-04 / 09-03 / 09-28(裁定表は `~/.claude/plans/tanaoroshi-<date>-saitei.md`)。
 
 ## 0. 原則
 
-- **削除は必ず K 承認後**(§7.3)。裁定は 1 枚の裁定表に束ねて 1 ゲートで取る(§2)。削除対象はチャット上でファイル名まで明示列挙し、K の承認を得てから実行する。
-- 削除実行が権限機構に止められた場合は、回避せず K に状況を報告して指示を仰ぐ(K が `! rm ...` で直接実行する選択肢も提示する)。
-- 裁定表は「推奨どおり」の一言で全適用できる形にする。推奨を付けられない項目は「K 裁定」と明示し、未裁定のまま残った項目は loops.md に追記して死なせない(§7.1)。
-- 破壊的操作の前に前提制約を列挙する(§1)。
-- 裏取りは下位モデル(sonnet)の Explore サブエージェントに読み取り専用で委譲する(§6)。git fetch/pull・ビルド・書込みは禁止と明記して渡す。
+- 削除は K 承認後。裁定は 1 枚の裁定表(**A 削除リスト / B 台帳各行 / C メモリ / D その他**)に束ね、「推奨どおり」の一言で全適用できる形にする。推奨を付けられない項目は「K 裁定(推奨: …)」と明示し、未裁定のまま残った項目は loops.md に書く(§7.1)。
+- 外部副作用(Linear 起票・コメント・PR・Slack 送信・remote ブランチ削除)は裁定表で個別に挙げる。承認が「文面準備」までなら `~/.claude/handover/tanaoroshi-<date>-drafts.md` に置いて止まる。
+- 削除実行が権限機構に止められたら回避せず K に報告し、`! rm ...` の直接実行を提示する。
+- 収集・裏取りは sonnet の Explore サブエージェントへ読み取り専用で委譲する(git fetch/pull・ビルド・書込み・push・チケット更新の禁止を明記)。Linear / Slack / Confluence の照合は MCP で自分が直接行う。
 
-## 1. 収集(並列サブエージェント 3 本程度)
+## 1. 収集(並列 3 本)
 
-- **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。
-- **~/.claude/projects/**: プロジェクトごとのセッション数・最終活動 / memory の MEMORY.md 索引と実ファイルの整合 / 孤児プロジェクト(作業 dir 消滅)/ セッション 0 でメモリのみ残存。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
-- **~/.claude 直下**: loops.md 全行 / collect-queue.md の未採用分 / skills 一覧と最終更新 / plans 残骸(30 日で自動削除される点に注意) / du -d1 の容量上位。
-- **仕組み自体**: AGENT.md・CLAUDE.md・本 Skill・tanaoroshi-reminder.sh・collect-session.sh の陳腐化や実態との乖離も対象(§7.3「本書自身」)。
+- **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。平文の秘匿情報(creds・鍵)は必ず拾う。
+- **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
+- **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
+- **仕組み自体**: AGENT.md・CLAUDE.md・本 Skill・hooks(tanaoroshi-reminder.sh / collect-session.sh)の陳腐化と実態との乖離(§7.3「本書自身」)。
 
 ## 2. 裏取り
 
-- loops.md 各行とメモリの追跡事項を、Linear(linear MCP。移行前の履歴は Jira)・gh CLI(読み取り)・ローカル repo の git log/grep で照合する。ドメイン別に 4〜5 本のサブエージェントへ委譲。
-- ドキュメント(HANDOVER・チケット本文)は鵜呑みにせず、実 PR・実コミット・実コードと突合する(§4)。ローカル repo は最終 fetch 時点の情報である旨を判定に添える。
-- シート実物・GCP 実体などアクセス不能なものは「確認不能」と明記し、推測と事実を峻別する。
+- loops.md 各行とメモリの追跡事項を照合する。Linear は `list_issues(assignee=me, team=<自チーム>, includeArchived)` で一括取得し、旧 Jira キー→Linear ID の読み替え表を先に作る(移行前の履歴は Jira)。「K 回答待ち」「レビュー待ち」の行は当該 Slack スレッド・Confluence コメント(footer と inline の両方)を直接読むと決着していることが多い。
+- GitHub の状態(ブランチ・PR・author)はローカルの remote-tracking でなく `gh api` / `gh pr` の live で判定する(fetch --prune 未実施の幽霊 ref が残る)。ローカル repo は最終 fetch 時点である旨を判定に添える。
+- ドキュメント(HANDOVER・チケット本文・README)は鵜呑みにせず、実 PR・実コミット・実コードと突合する(§4)。アクセス不能(GCP 実体等)は「確認不能」と明記し、推測と事実を峻別する。
 
 ## 3. 裁定表(1 ゲート)
 
-セクション構成: **A 削除リスト(根拠付き) / B loops.md 各行(クローズ・更新・起票・破棄・継続 + 推奨) / C メモリ(完了追記・訂正・削除・昇格) / D その他(.claude 掃除等)**。
-副次検出(セキュリティ懸念・平文秘匿情報など)は裁定不要でも必ず報告する。
+全文はファイルに書く。チャットには **A 削除リスト全件(ファイル名まで)・K 裁定項目(推奨付き)・集計・副次検出** を載せ、「推奨どおり」で通る形にする。副次検出(平文秘匿情報・露出継続・参照切れなど)は裁定不要でも必ず報告する。
 
 ## 4. 適用(承認分のみ)
 
-- メモリ更新は CLAUDE.md のメモリ衛生規律を遵守: **本文 + frontmatter description + MEMORY.md 索引を同時更新**。完了追記と相互リンク。
-- loops.md: 閉じた行は削除し、Open 冒頭の※行に今回の変更サマリ(クローズ数と理由)を残す。裁定で生まれた新規事項を追記。
-- 起票・commit・push 等の外部副作用は、裁定表で個別承認された項目のみ。承認が「文面準備」までなら文面を報告に載せて止まる。
+- メモリ: 本文+frontmatter description+MEMORY.md 索引を同時更新(CLAUDE.md)。plans/ 参照は handover/ へ書換え、消滅済みは「(消滅)」注記。
+- loops.md: 閉じた行は削除し、Open 冒頭の※行に変更サマリ(クローズ数と理由・削除実行物)を残す。全文の控えは `handover/loops-backup-<date>.md`。裁定で生まれた新規事項を追記。
+- collect-queue.md: 昇格 / 台帳と重複 / 解消済み / 一過性 / Skill 候補(同種 2 回で採用・1 回は破棄)に分類し、集計を冒頭に残して空にする。
+- 外部副作用は個別承認分のみ。承認が文面準備までなら drafts に置いて止まる。
 
 ## 5. 検証・完了
 
-- 全 memory dir で索引整合を再チェック(ファイル一覧 vs MEMORY.md リンクの突合)。
+- 全 memory dir で MEMORY.md のリンク vs 実ファイルを突合し、`[[link]]` の切れも確認する。
 - 削除後の ls / du 差分を報告。
-- 元指示との**逐項目突合せ表**と差分(できなかったこと・K 回答待ち)を提示(§2)。
-- 最後に実施記録を更新: `date +%F > ~/.claude/.last-tanaoroshi`(SessionStart リマインダーがこれを参照)。
+- 元指示との逐項目突合せ表と差分(できなかったこと・K 回答待ち)を提示(§2)。
+- 実施記録を更新: `date +%F > ~/.claude/.last-tanaoroshi`(SessionStart リマインダーがこれを参照)。
