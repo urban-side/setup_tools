@@ -12,7 +12,9 @@ if [ ! -f "$MARKER" ]; then
 fi
 
 last_date=$(head -1 "$MARKER" | tr -d '[:space:]')
-last_epoch=$(date -j -f "%Y-%m-%d" "$last_date" "+%s" 2>/dev/null) || exit 0
+# BSD date(macOS) と GNU date(Linux) で日付パースの書式が異なるため両方試す
+last_epoch=$(date -j -f "%Y-%m-%d" "$last_date" "+%s" 2>/dev/null \
+  || date -d "$last_date" "+%s" 2>/dev/null) || exit 0
 now_epoch=$(date "+%s")
 days=$(( (now_epoch - last_epoch) / 86400 ))
 
