@@ -23,6 +23,10 @@ else
   eval "$("${brew_prefix}/bin/brew" shellenv)"
 fi
 
+# brew shellenv は FPATH を export するため、子シェルでは補完ディレクトリが二重に入る。
+# compinit が数えるファイル数が起動元で変わり、~/.zcompdump が起動のたびに作り直されて遅くなるので重複を除く。
+append_line_once ~/.zprofile 'typeset -U fpath' "~/.zprofile の fpath 重複除去"
+
 log "Homebrewをアップデートします..."
 brew update
 
