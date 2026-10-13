@@ -23,14 +23,16 @@ description: |
 
 - **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。平文の秘匿情報(creds・鍵)は必ず拾う。
   - **Claude の一時ファイル(`/tmp/claude-$(id -u)/` と `/tmp` 直下)**: 公式の自動削除は、`cleanupPeriodDays`(既定 30 日)の sweep が transcript と同時に消す scratchpad と、OS 再起動時の消去だけ。削除候補は (a) `<project>/<session-id>/`(配下の最終更新が 24h 以内のものと現セッションは稼働中とみなして除外) (b) `bundled-skills/` の現行版(`claude --version`)以外 (c) `/tmp` 直下の自分所有の残骸(セッションが scratchpad 外に書いた `*.md`・`*.log`・`*.diff`・`*.sh` 等)。scratchpad やタスク出力にしか無い成果物は削除前に退避要否を判定する。`cc-socks`・`cc-daemon-*`・`claude-mcp-browser-bridge-*`・`bash-edit-diff/` は稼働中プロセスが使うので対象外。macOS の `/tmp` は `/private/tmp` への symlink なので find は `/tmp/` で辿る。
-- **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
+- **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
 - **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
+  - **外部由来の部品の鮮度**: plugin は `installed_plugins.json` の版と各 marketplace の upstream 最新(`gh api`)を比べる。auto-update が既定でオンなのは公式 marketplace だけで、third-party は手で更新しない限り古いまま。エージェントが呼ぶ CLI(codex 等)は `brew outdated --cask --greedy`、取り込んだ外部 Skill(stop-ai-slop-jp 等)は取り込んだ commit と upstream HEAD を比べる。
 - **仕組み自体**: AGENT.md・CLAUDE.md・本 Skill・hooks(tanaoroshi-reminder.sh / collect-session.sh)の陳腐化と実態との乖離(§7.3「本書自身」)。
 
 ## 2. 裏取り
 
 - loops.md 各行とメモリの追跡事項を照合する。Linear は `list_issues(assignee=me, team=<自チーム>, includeArchived)` で一括取得し、旧 Jira キー→Linear ID の読み替え表を先に作る(移行前の履歴は Jira)。「K 回答待ち」「レビュー待ち」の行は当該 Slack スレッド・Confluence コメント(footer と inline の両方)を直接読むと決着していることが多い。
 - GitHub の状態(ブランチ・PR・author)はローカルの remote-tracking でなく `gh api` / `gh pr` の live で判定する(fetch --prune 未実施の幽霊 ref が残る)。ローカル repo は最終 fetch 時点である旨を判定に添える。
+- Skill・規約に書いた版・モデル名・設定値(「〜で検証」「現在 〜」)は実体と突合する。外部ツールを包む Skill はツール側の更新で黙って古くなる。照合先は `codex --version`・`~/.codex/config.toml`、plugin は `~/.claude/plugins/installed_plugins.json` の版と upstream HEAD(`gh api`)。
 - ドキュメント(HANDOVER・チケット本文・README)は鵜呑みにせず、実 PR・実コミット・実コードと突合する(§4)。アクセス不能(GCP 実体等)は「確認不能」と明記し、推測と事実を峻別する。
 
 ## 3. 裁定表(1 ゲート)
@@ -42,6 +44,7 @@ description: |
 - メモリ: 本文+frontmatter description+MEMORY.md 索引を同時更新(CLAUDE.md)。plans/ 参照は handover/ へ書換え、消滅済みは「(消滅)」注記。
 - loops.md: 閉じた行は削除し、Open 冒頭の※行に変更サマリ(クローズ数と理由・削除実行物)を残す。全文の控えは `handover/loops-backup-<date>.md`。裁定で生まれた新規事項を追記。
 - collect-queue.md: 昇格 / 台帳と重複 / 解消済み / 一過性 / Skill 候補(同種 2 回で採用・1 回は破棄)に分類し、集計を冒頭に残して空にする。
+- 外部部品の更新: plugin は `claude plugin marketplace update <marketplace>` → `claude plugin update <plugin>@<marketplace>`、CLI は `brew upgrade --cask <name>`、取り込んだ Skill は upstream の差分を読んでから setup_tools の PR で入れ替える。更新後は §2 の版・設定値の突合をやり直す。
 - 外部副作用は個別承認分のみ。承認が文面準備までなら drafts に置いて止まる。
 
 ## 5. 検証・完了
