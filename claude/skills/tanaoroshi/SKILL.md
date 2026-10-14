@@ -2,7 +2,8 @@
 name: tanaoroshi
 description: |
   定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ / loops.md 台帳 / collect-queue / Skill /
-  AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / claude.ai の Artifact / plans・handover 残骸 / .claude 肥大 / 本仕組み(hook・Skill)自体。
+  AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / claude.ai の Artifact / plans・handover 残骸 /
+  ~/.claude 全体の残骸・肥大(公式の自動削除・状態ファイルと突き合わせる) / 本仕組み(hook・Skill)自体。
   型: 収集→裏取り→裁定表→K承認→適用→検証。
   トリガー: "棚卸し", "/tanaoroshi", SessionStart リマインダー(tanaoroshi-reminder.sh)の期限超過通知
 ---
@@ -26,6 +27,12 @@ description: |
 - **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
 - **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
   - **外部由来の部品の鮮度**: plugin は `installed_plugins.json` の版と各 marketplace の upstream 最新(`gh api`)を比べる。auto-update が既定でオンなのは公式 marketplace だけで、third-party は手で更新しない限り古いまま。エージェントが呼ぶ CLI(codex 等)は `brew outdated --cask --greedy`、取り込んだ外部 Skill(stop-ai-slop-jp 等)は取り込んだ commit と upstream HEAD を比べる。
+  - **~/.claude 全体の区分**: `ls -A ~/.claude` の全エントリを次の 4 区分に振り分け、どれにも当たらないものを未知として拾う。区分 1・2 の正は公式の claude-directory ページ(https://code.claude.com/docs/en/claude-directory)。Claude Code の版が上がると項目が増えるので、毎回照合する。
+    1. **自動で消えるもの(対象外)**: `cleanupPeriodDays` の sweep が消す projects/ の transcript・subagents・tool-results、file-history、plans、debug、paste-cache、session-env、tasks、shell-snapshots、usage-data、feedback/drafts。backups/ は日数でなく件数で回る(新しい 5 件を残す)。plugins/cache の旧版は `.orphaned_at` が付いてから 14 日で消える。見るのは各ディレクトリの最古の mtime だけで、期限を大きく超えて残っていれば sweep の停止(設定ファイルを読めないときなどに止まる)として報告する。
+    2. **状態・キャッシュ(触らない)**: 公式の state files(`.credentials.json`・`agent-memory/`・`jobs/`・`daemon/`)、`~/.claude.json`・settings*.json・plugins/(公式が手で消さないよう警告している)、history.jsonl・stats-cache.json・cache/・state/・ide/・sessions/・telemetry/・chrome/、Claude Code 本体が直下に置く状態・キャッシュ・ロック(`daemon*`・`*-cache.json`・`.last-tanaoroshi` 以外の `.last-*` など)、plugin が直下に置くドットファイルと状態ディレクトリ(`.genshijin-*`・`ponytail-modes/` など)。
+    3. **K の資産**: AGENT.md・CLAUDE.md・skills/・hooks/・loops.md・collect-queue.md・handover/・plans の原本・自前で入れた MCP(mcp-servers/)。上の各項目で見る。加えて、handover/ にある 10MB 超のデータは個人情報の有無を添えて報告し、案件の終了時・退職時の扱いを裁定表に載せる。hooks のログの肥大も見る。
+    4. **残骸(A 削除リスト候補)**: (a) 1〜3 に当たらない直下のエントリ(scratchpad の外に書かれた作業ファイル・`.DS_Store` など。申し送りなら handover/ へ移す) (b) 手で取ったバックアップ(`*.bak*`・`*-backup-*`)のうち 30 日を超えたもの。深さを問わない。handover/ の `loops-backup-*` は直近 2 回分を残す (c) plugins/cache の `temp_git_*`(失敗したインストールの残骸)のうち 24h を超えたもの。plugins/ の中で手で消すのはこれだけ (d) 壊れた symlink(`find ~/.claude -maxdepth 3 -type l ! -exec test -e {} \; -print`)。
+    - 100MB を超えるエントリは区分を問わず、サイズと原因を報告する。消すかどうかは別に裁定する。
 - **claude.ai の Artifact**: `Artifact list`(scope mine・limit 200)で全件を出し、各 ID を memory・loops.md・handover・`~/projects`・`~/temp` で検索する(`rg -F -f <ID一覧> -g '!*.jsonl' -g '!**/tool-results/**'`)。transcript と tool-results は作ったときの記録なので参照に数えない。loops.md は行の中身を読み、削除候補として挙げているだけの行も参照に数えない。社内の HTML 共有ツールは対象外(別途指示)。
 - **仕組み自体**: AGENT.md・CLAUDE.md・本 Skill・hooks(tanaoroshi-reminder.sh / collect-session.sh)の陳腐化と実態との乖離(§7.3「本書自身」)。
 
@@ -47,6 +54,7 @@ description: |
 - loops.md: 閉じた行は削除し、Open 冒頭の※行に変更サマリ(クローズ数と理由・削除実行物)を残す。全文の控えは `handover/loops-backup-<date>.md`。裁定で生まれた新規事項を追記。
 - collect-queue.md: 昇格 / 台帳と重複 / 解消済み / 一過性 / Skill 候補(同種 2 回で採用・1 回は破棄)に分類し、集計を冒頭に残して空にする。
 - Artifact: 削除は取り消せず、リンクも全員に対して切れる。`Artifact read`(out_dir=`~/.claude/handover/tanaoroshi-<date>-artifacts/`)で HTML を退避してから `Artifact delete` し、`Artifact list` を取り直して消えたことを確認する。
+- ~/.claude の残骸: 収集時に保存した候補一覧で実在と mtime を確かめてから消す。plugins/ の中は `temp_git_*` 以外を手で消さない。handover/ のデータを消す前に、それを参照しているメモリと loops.md の行を書き換える。
 - 外部部品の更新: plugin は `claude plugin marketplace update <marketplace>` → `claude plugin update <plugin>@<marketplace>`、CLI は `brew upgrade --cask <name>`、取り込んだ Skill は upstream の差分を読んでから setup_tools の PR で入れ替える。更新後は §2 の版・設定値の突合をやり直す。
 - 外部副作用は個別承認分のみ。承認が文面準備までなら drafts に置いて止まる。
 
