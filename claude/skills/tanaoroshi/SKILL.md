@@ -10,7 +10,7 @@ description: |
 # 定期棚卸し手順
 
 型: **収集(全読) → 裏取り(一次情報照合) → 裁定表 → K 承認(1 ゲート) → 適用 → 検証**。
-実績: 2026-07-15 / 08-04 / 09-03 / 09-28(裁定表は `~/.claude/plans/tanaoroshi-<date>-saitei.md`)。
+実績: 2026-07-15 / 08-04 / 09-03 / 09-28 / 10-13(裁定表は `~/.claude/plans/tanaoroshi-<date>-saitei.md`)。
 
 ## 0. 原則
 
@@ -22,7 +22,7 @@ description: |
 ## 1. 収集(並列 3 本)
 
 - **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。平文の秘匿情報(creds・鍵)は必ず拾う。
-  - **Claude の一時ファイル(`/tmp/claude-$(id -u)/` と `/tmp` 直下)**: 公式の自動削除は、`cleanupPeriodDays`(既定 30 日)の sweep が transcript と同時に消す scratchpad と、OS 再起動時の消去だけ。削除候補は (a) `<project>/<session-id>/`(配下の最終更新が 24h 以内のものと現セッションは稼働中とみなして除外) (b) `bundled-skills/` の現行版(`claude --version`)以外 (c) `/tmp` 直下の自分所有の残骸(セッションが scratchpad 外に書いた `*.md`・`*.log`・`*.diff`・`*.sh` 等)。scratchpad やタスク出力にしか無い成果物は削除前に退避要否を判定する。`cc-socks`・`cc-daemon-*`・`claude-mcp-browser-bridge-*`・`bash-edit-diff/` は稼働中プロセスが使うので対象外。macOS の `/tmp` は `/private/tmp` への symlink なので find は `/tmp/` で辿る。
+  - **Claude の一時ファイル(`/tmp/claude-$(id -u)/` と `/tmp` 直下)**: 公式の自動削除は、`cleanupPeriodDays`(既定 30 日)の sweep が transcript と同時に消す scratchpad と、OS 再起動時の消去だけ。削除候補は (a) `<project>/<session-id>/`(配下の最終更新が 24h 以内のものと現セッションは稼働中とみなして除外) (b) `bundled-skills/` の現行版(`claude --version`)以外 (c) `/tmp` 直下の自分所有の残骸(セッションが scratchpad 外に書いた `*.md`・`*.log`・`*.diff`・`*.sh` 等)。scratchpad やタスク出力にしか無い成果物は削除前に退避要否を判定する。`cc-socks`・`cc-daemon-*`・`claude-mcp-browser-bridge-*`・`bash-edit-diff/` は稼働中プロセスが使うので対象外。macOS の `/tmp` は `/private/tmp` への symlink なので find は `/tmp/` で辿る。削除候補の一覧は収集時にファイルへ保存し、適用ではその一覧で実在を確かめてから消す(収集で `git status` を流すと mtime が変わって 24h 判定から外れ、収集から適用までの間に中身が消えていることもある)。
 - **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
 - **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
   - **外部由来の部品の鮮度**: plugin は `installed_plugins.json` の版と各 marketplace の upstream 最新(`gh api`)を比べる。auto-update が既定でオンなのは公式 marketplace だけで、third-party は手で更新しない限り古いまま。エージェントが呼ぶ CLI(codex 等)は `brew outdated --cask --greedy`、取り込んだ外部 Skill(stop-ai-slop-jp 等)は取り込んだ commit と upstream HEAD を比べる。
