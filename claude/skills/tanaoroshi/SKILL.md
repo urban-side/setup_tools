@@ -3,7 +3,8 @@ name: tanaoroshi
 description: |
   定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ / loops.md 台帳 / collect-queue / Skill /
   AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / claude.ai の Artifact / plans・handover 残骸 /
-  ~/.claude 全体の残骸・肥大(公式の自動削除・状態ファイルと突き合わせる) / 本仕組み(hook・Skill)自体。
+  ~/.claude 全体の残骸・肥大(公式の自動削除・状態ファイルと突き合わせる) / setup_tools との差分(make claude の副作用の dry-run・
+  勤め先に依存する設定) / 本仕組み(hook・Skill)自体。
   型: 収集→裏取り→裁定表→K承認→適用→検証。
   トリガー: "棚卸し", "/tanaoroshi", SessionStart リマインダー(tanaoroshi-reminder.sh)の期限超過通知
 ---
@@ -27,6 +28,8 @@ description: |
 - **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
 - **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
   - **外部由来の部品の鮮度**: plugin は `installed_plugins.json` の版と各 marketplace の upstream 最新(`gh api`)を比べる。auto-update が既定でオンなのは公式 marketplace だけで、third-party は手で更新しない限り古いまま。エージェントが呼ぶ CLI(codex 等)は `brew outdated --cask --greedy`、取り込んだ外部 Skill(stop-ai-slop-jp 等)は取り込んだ commit と upstream HEAD を比べる。
+  - **setup_tools との差分と `make claude` の副作用**: このマシンは手元の `~/.claude` が正で、setup_tools の `claude/` はサニタイズ版なので、`make claude` は実行しない(README に「既に `~/.claude/` を使い込んでいるマシンでは `make claude`(および `make install`)を実行しないこと」とある)。代わりに、実行したら何が起きるかを dry-run で出す。skills と hooks は `rsync -rlptn --delete --itemize-changes ~/projects/setup_tools/claude/skills/ ~/.claude/skills/`(hooks も同じ形)、AGENT.md・CLAUDE.md は `cmp`、settings.json は install.sh と同じ `jq -e -s '.[0] * .[1] == .[0]'` で見る。結果は、上書きされるファイル(中身が変わる `>f.s…`)/ 消えるファイル(`*deleting`)/ 日時だけ変わるファイル に分けて数える。上書きされるファイルは差分を読み、サニタイズで伏せた値か同期漏れかに分ける。同期漏れは setup_tools への PR として裁定表 D に挙げる。
+  - **勤め先に依存する設定**: 上で「伏せた値」に分けた箇所が、勤め先に固有の値(社内 URL、Slack・Notion・Linear のワークスペースやチャンネルの ID、GitHub org、チーム名)の一覧になる。退職・転職・異動の予定がメモリにあれば、Skill ごとに「値を差し替えて作り直す / やめる / そのまま」の推奨を裁定表 D に載せる。新しい勤め先の値は K しか知らないので、書き換えは K の指示を待つ。
   - **~/.claude 全体の区分**: `ls -A ~/.claude` の全エントリを次の 4 区分に振り分け、どれにも当たらないものを未知として拾う。区分 1・2 の正は公式の claude-directory ページ(https://code.claude.com/docs/en/claude-directory)。Claude Code の版が上がると項目が増えるので、毎回照合する。
     1. **自動で消えるもの(対象外)**: `cleanupPeriodDays` の sweep が消す projects/ の transcript・subagents・tool-results、file-history、plans、debug、paste-cache、session-env、tasks、shell-snapshots、usage-data、feedback/drafts。backups/ は日数でなく件数で回る(新しい 5 件を残す)。plugins/cache の旧版は `.orphaned_at` が付いてから 14 日で消える。見るのは各ディレクトリの最古の mtime だけで、期限を大きく超えて残っていれば sweep の停止(設定ファイルを読めないときなどに止まる)として報告する。
     2. **状態・キャッシュ(触らない)**: 公式の state files(`.credentials.json`・`agent-memory/`・`jobs/`・`daemon/`)、`~/.claude.json`・settings*.json・plugins/(公式が手で消さないよう警告している)、history.jsonl・stats-cache.json・cache/・state/・ide/・sessions/・telemetry/・chrome/、Claude Code 本体が直下に置く状態・キャッシュ・ロック(`daemon*`・`*-cache.json`・`.last-tanaoroshi` 以外の `.last-*` など)、plugin が直下に置くドットファイルと状態ディレクトリ(`.genshijin-*`・`ponytail-modes/` など)。
@@ -46,7 +49,7 @@ description: |
 
 ## 3. 裁定表(1 ゲート)
 
-全文はファイルに書く。チャットには **A 削除リスト全件(ファイル名まで)・K 裁定項目(推奨付き)・集計・副次検出** を載せ、「推奨どおり」で通る形にする。副次検出(平文秘匿情報・露出継続・参照切れなど)は裁定不要でも必ず報告する。
+全文はファイルに書く。チャットには **A 削除リスト全件(ファイル名まで)・K 裁定項目(推奨付き)・集計・副次検出・`make claude` の副作用(上書き・削除される件数と主なファイル)** を載せ、「推奨どおり」で通る形にする。副次検出(平文秘匿情報・露出継続・参照切れなど)は裁定不要でも必ず報告する。
 
 ## 4. 適用(承認分のみ)
 
