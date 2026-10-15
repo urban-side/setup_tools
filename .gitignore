@@ -1,1 +1,15 @@
+# OS
 .DS_Store
+
+# 実行時に生成されるもの
+__pycache__/
+*.py[cod]
+*.log
+
+# エディタ
+*.swp
+*~
+
+# 秘密情報
+.env
+.env.*
