@@ -53,7 +53,7 @@ Notion の `notion-query-data-sources` は SQL モードを使わない。Busine
 
 ### 4. 推敲する
 
-自分で書いた地の文(子項目の一言メモ・アンテナの一言)に stop-ai-slop-jp の規則を当てる。日報は業務メモなので、ブログ向けの規則(伝聞の「らしい」を混ぜる・毒や自虐を足す・中間温度の語を足す・文末のムラ付け)は外す。記事の題は元の題のまま使い、言い換えない。
+自分で書いた地の文(子項目の一言メモ・アンテナの一言)に、stop-ai-slop-jp の規則と業務文書の追補(`~/.claude/skills/stop-ai-slop-jp/references/business-addendum.md`)を当てる。記事の題は元の題のまま使い、言い換えない。
 
 ### 5. 書き込む
 
