@@ -2,7 +2,7 @@
 name: tanaoroshi
 description: |
   定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ(統合と、前回以降のセッションからの回収) / loops.md 台帳 / collect-queue / Skill /
-  AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / claude.ai の Artifact / plans・handover 残骸 /
+  AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / ~/research(imozuru の調べもの) / claude.ai の Artifact / plans・handover 残骸 /
   ~/.claude 全体の残骸・肥大(公式の自動削除・状態ファイルと突き合わせる) / setup_tools との差分(make claude の副作用の dry-run・
   勤め先に依存する設定) / 使われていない Skill・Hook・Plugin・MCP /
   本仕組み(hook・Skill)自体。
@@ -25,6 +25,7 @@ description: |
 ## 1. 収集(並列 3 本)
 
 - **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。平文の秘匿情報(creds・鍵)は必ず拾う。
+  - **~/research/(imozuru の調べもの)**: 話題ごとに最終更新・サイズを出す。`sources/` は再取得できる原文の写しで、K の作業の実体は map.md・log.md・extracts.json。勤め先の業務で調べた話題は、退職・転職のときに残すか消すかを裁定表 D に載せる。
   - **Claude の一時ファイル(`/tmp/claude-$(id -u)/` と `/tmp` 直下)**: 公式の自動削除は、`cleanupPeriodDays`(既定 30 日)の sweep が transcript と同時に消す scratchpad と、OS 再起動時の消去だけ。削除候補は (a) `<project>/<session-id>/`(配下の最終更新が 24h 以内のものと現セッションは稼働中とみなして除外) (b) `bundled-skills/` の現行版(`claude --version`)以外 (c) `/tmp` 直下の自分所有の残骸(セッションが scratchpad 外に書いた `*.md`・`*.log`・`*.diff`・`*.sh` 等)。scratchpad やタスク出力にしか無い成果物は削除前に退避要否を判定する。`cc-socks`・`cc-daemon-*`・`claude-mcp-browser-bridge-*`・`bash-edit-diff/` は稼働中プロセスが使うので対象外。macOS の `/tmp` は `/private/tmp` への symlink なので find は `/tmp/` で辿る。削除候補の一覧は収集時にファイルへ保存し、適用ではその一覧で実在を確かめてから消す(収集で `git status` を流すと mtime が変わって 24h 判定から外れ、収集から適用までの間に中身が消えていることもある)。
 - **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
   - **メモリの統合**: メモリのあるプロジェクトごとに全ファイルを読み、次を拾う。(1) 同じ事項を書いた複数のファイル(統合候補) (2) ファイル同士の矛盾 (3) グローバルとプロジェクトの CLAUDE.md・AGENT.md との矛盾。どちらが新しいかは日付と一次情報で決め、メモリの「K に訂正された」という書き方は新しさの根拠にしない (4) コードや live 状態(PR・チケット)と食い違う記述 (5) 相対日付(「昨日」「来週」) (6) 本文と description・索引行の乖離、150 字を超える索引行、200 行か 25KB を超える MEMORY.md(超えた分は読み込まれない)。
