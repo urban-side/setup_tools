@@ -49,6 +49,8 @@ setup_tools/
 | ★時刻表示 | 秒数まで表示する（`:` の点滅は OFF） | |
 | ★バッテリーアイコン | バッテリーの % を表示 | |
 | ★メニューバーアイコン | 必要に応じて幅を調節する | [参考](https://zenn.dev/usagimaru/articles/9c4f45b0f3c906) |
+| ★入力ソース | キーボード → キーボードショートカット → 入力ソース → 前の入力ソースを選択を `⌘ Space`、入力メニューの次のソースを選択を `⌘ ⇧ Space` にする | 既定は `^ Space` と `^ ⌥ Space` |
+| ★Spotlight | キーボード → キーボードショートカット → Spotlight → Spotlight検索を表示を `^ Space` にする | `⌘ Space` は入力ソース、`⌥ Space` は Raycast に使う |
 | Finder | ★拡張子を表示 / 設定 → サイドバーから全ての項目を表示 | Raycast: `⌥ F` |
 | ★Terminal | プロファイルの設定 | Raycast: `⌥ T` |
 
@@ -69,7 +71,7 @@ setup_tools/
 | [Homebrew](https://brew.sh/ja/) | 未導入なら `make apps` が入れる |
 | [mise](https://mise.jdx.dev/) | バージョン管理 |
 | [Warp](https://www.warp.dev/i) | GitHub でログイン |
-| [Raycast](https://www.raycast.com/) | GitHub でログイン、`⌥ Space` に設定（Spotlight は `^ Space`）。設定ファイルあり → [manual/](./manual/README.md) |
+| [Raycast](https://www.raycast.com/) | GitHub でログイン、起動キーの `⌥ Space` は `make macos` が設定する。設定ファイルあり → [manual/](./manual/README.md) |
 | [Visual Studio Code](https://code.visualstudio.com/) | GitHub でログイン、Raycast: `⌥ V` |
 | [Cursor](https://www.cursor.com/ja) | GitHub でログイン、Raycast: `⌥ C` |
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) | |
