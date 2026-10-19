@@ -8,7 +8,7 @@ source "${SCRIPT_DIR}/../lib/common.sh"
 echo "macOS の設定を適用します..."
 
 # 修飾キー + Space のショートカットを設定する。id は com.apple.symbolichotkeys の番号、
-# 修飾キーは ^=262144 / ⌥=524288 / ⌘=1048576(32 と 49 は Space の文字コードとキーコード)
+# 修飾キーは ⇧=131072 / ^=262144 / ⌥=524288 / ⌘=1048576 の和(32 と 49 は Space の文字コードとキーコード)
 set_space_hotkey() {
   local id="$1" modifiers="$2"
   defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$id" \
@@ -35,8 +35,9 @@ defaults write -globalDomain NSStatusItemSelectionPadding -int 8
 log "Finderでは拡張子を表示するように設定します"
 defaults write com.apple.finder ShowExtension -bool true
 
-log "入力ソースの切り替えを ⌘ Space に設定します"
+log "入力ソースの切り替えを ⌘ Space(次のソースは ⌘ ⇧ Space)に設定します"
 set_space_hotkey 60 1048576
+set_space_hotkey 61 1179648
 
 log "Spotlight検索を ^ Space に設定します"
 set_space_hotkey 64 262144
