@@ -30,15 +30,15 @@ else
   ok "~/.codex/AGENTS.md を ~/.claude/AGENT.md への symlink にしました"
 fi
 
-# hooks キーのみ上書きし、他の個人設定(permissions / enabledPlugins 等)は保持する
+# hooks と autoDreamEnabled だけ上書きし、他の個人設定(permissions / enabledPlugins 等)は保持する
 if [ ! -f ~/.claude/settings.json ]; then
   copy_if_changed "${SCRIPT_DIR}/settings.hooks.json" ~/.claude/settings.json "~/.claude/settings.json"
 elif jq -e -s '.[0] * .[1] == .[0]' ~/.claude/settings.json "${SCRIPT_DIR}/settings.hooks.json" >/dev/null; then
-  skip "~/.claude/settings.json の hooks 設定は最新です"
+  skip "~/.claude/settings.json の hooks・autoDreamEnabled の設定は最新です"
 else
   jq -s '.[0] * .[1]' ~/.claude/settings.json "${SCRIPT_DIR}/settings.hooks.json" > ~/.claude/settings.json.tmp \
     && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
-  ok "~/.claude/settings.json に hooks 設定をマージしました"
+  ok "~/.claude/settings.json に hooks・autoDreamEnabled の設定をマージしました"
 fi
 
 echo "Claude Code の設定が完了しました！"
