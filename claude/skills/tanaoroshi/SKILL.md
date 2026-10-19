@@ -1,7 +1,7 @@
 ---
 name: tanaoroshi
 description: |
-  定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ / loops.md 台帳 / collect-queue / Skill /
+  定期棚卸し(AGENT.md §7.3)を実行する。対象: 全プロジェクトのメモリ(統合と、前回以降のセッションからの回収) / loops.md 台帳 / collect-queue / Skill /
   AGENT.md・CLAUDE.md / ~/temp・/tmp/claude-<uid> 等の一時作業域 / claude.ai の Artifact / plans・handover 残骸 /
   ~/.claude 全体の残骸・肥大(公式の自動削除・状態ファイルと突き合わせる) / setup_tools との差分(make claude の副作用の dry-run・
   勤め先に依存する設定) / 使われていない Skill・Hook・Plugin・MCP /
@@ -27,6 +27,10 @@ description: |
 - **~/temp 等の一時作業域**: エントリ一覧 / git repo か / 未コミット・未 push / remote の有無 / 一次コード(どこにもバックアップがない実体)の識別 / サイズ / 最終更新。判定軸は「他所から再生成・再取得できるか」。平文の秘匿情報(creds・鍵)は必ず拾う。
   - **Claude の一時ファイル(`/tmp/claude-$(id -u)/` と `/tmp` 直下)**: 公式の自動削除は、`cleanupPeriodDays`(既定 30 日)の sweep が transcript と同時に消す scratchpad と、OS 再起動時の消去だけ。削除候補は (a) `<project>/<session-id>/`(配下の最終更新が 24h 以内のものと現セッションは稼働中とみなして除外) (b) `bundled-skills/` の現行版(`claude --version`)以外 (c) `/tmp` 直下の自分所有の残骸(セッションが scratchpad 外に書いた `*.md`・`*.log`・`*.diff`・`*.sh` 等)。scratchpad やタスク出力にしか無い成果物は削除前に退避要否を判定する。`cc-socks`・`cc-daemon-*`・`claude-mcp-browser-bridge-*`・`bash-edit-diff/` は稼働中プロセスが使うので対象外。macOS の `/tmp` は `/private/tmp` への symlink なので find は `/tmp/` で辿る。削除候補の一覧は収集時にファイルへ保存し、適用ではその一覧で実在を確かめてから消す(収集で `git status` を流すと mtime が変わって 24h 判定から外れ、収集から適用までの間に中身が消えていることもある)。
 - **~/.claude/projects/**: セッション数・最終活動 / MEMORY.md 索引と実ファイルの整合 / 孤児(作業 dir 消滅) / セッション 0 でメモリのみ / 全プロジェクトに効くべき feedback がプロジェクトメモリに閉じていないか(CLAUDE.md・AGENT.md への昇格候補)。エンコード名の逆引きは `_`/`/` が `-` に潰れるため jsonl 内 cwd と test -d で確定する。
+  - **メモリの統合**: メモリのあるプロジェクトごとに全ファイルを読み、次を拾う。(1) 同じ事項を書いた複数のファイル(統合候補) (2) ファイル同士の矛盾 (3) グローバルとプロジェクトの CLAUDE.md・AGENT.md との矛盾。どちらが新しいかは日付と一次情報で決め、メモリの「K に訂正された」という書き方は新しさの根拠にしない (4) コードや live 状態(PR・チケット)と食い違う記述 (5) 相対日付(「昨日」「来週」) (6) 本文と description・索引行の乖離、150 字を超える索引行、200 行か 25KB を超える MEMORY.md(超えた分は読み込まれない)。
+  - **取りこぼしの回収**: 統合を終えた後のメモリを基準に、前回の棚卸し以降のセッション(`find ~/.claude/projects -maxdepth 2 -name '*.jsonl' -newer ~/.claude/.last-tanaoroshi`)から、まだメモリにない事項を拾う。読むのは K の発言だけで、抽出は collect-session.sh と同じ jq を使う。拾うのはメモリの 4 型(user / feedback / project / reference)に当たるものに限り、リポジトリや CLAUDE.md に既にあるもの・その会話でしか意味のないものは拾わない。collect-queue.md の [skill候補] と同じ事項は、Skill にするかメモリにするかを 1 行で裁定する。transcript は `cleanupPeriodDays`(既定 30 日)で消えるので、前回から 30 日を超えていたら読めなかった期間を報告する。
+  - 統合と回収の結果は裁定表 C に、ファイルごとに 統合 / 訂正の追記 / 新規 / 索引の修正 のどれかと中身を 1 行で載せる。
+  - Claude Code 本体の auto-dream(設定 `autoDreamEnabled`)は使わない。同じ統合をバックグラウンドで行うが、承認なしでメモリを消し、矛盾も消して直すので、§0 と CLAUDE.md のメモリ衛生(訂正を追記して相互リンク)にぶつかる。未設定だとサーバー側の既定に従うので、settings.json で `false` を明示している(setup_tools の `settings.hooks.json` で配る)。値が `false` のままか、メモリ dir に `.consolidate-lock`(動いた痕跡)がないかを見て、外れていたら報告する。
 - **~/.claude 直下**: loops.md 全行 / collect-queue.md / skills と最終更新 / plans(.md は 30 日で自動削除される。メモリが参照する申し送り・設計原本は `~/.claude/handover/` へ退避) / handover/ の古い申し送り / du -d1 の上位。
   - **handover/ の申し送り**: エントリごとに最終更新・サイズ・参照の有無を出す。参照は、エントリ名で全プロジェクトのメモリと loops.md を検索して数える(`rg -F <名前> ~/.claude/projects/*/memory ~/.claude/loops.md`)。Artifact と同じく transcript と tool-results は参照に数えず、loops.md は行の中身を読んで、削除候補として挙げているだけの行も参照に数えない。
   - **外部由来の部品の鮮度**: plugin は `installed_plugins.json` の版と各 marketplace の upstream 最新(`gh api`)を比べる。auto-update が既定でオンなのは公式 marketplace だけで、third-party は手で更新しない限り古いまま。エージェントが呼ぶ CLI(codex 等)は `brew outdated --cask --greedy`、取り込んだ外部 Skill(stop-ai-slop-jp 等)は取り込んだ commit と upstream HEAD を比べる。
@@ -63,7 +67,7 @@ description: |
 
 ## 4. 適用(承認分のみ)
 
-- メモリ: 本文+frontmatter description+MEMORY.md 索引を同時更新(CLAUDE.md)。plans/ 参照は handover/ へ書換え、消滅済みは「(消滅)」注記。
+- メモリ: 本文+frontmatter description+MEMORY.md 索引を同時更新(CLAUDE.md)。統合は残す側に中身を寄せてから消す側を消し、`[[消す側]]` のリンクを張り替える。矛盾は消して直さず、旧記述に訂正を追記して相互リンクする。plans/ 参照は handover/ へ書換え、消滅済みは「(消滅)」注記。
 - loops.md: 閉じた行は削除し、Open 冒頭の※行に変更サマリ(クローズ数と理由・削除実行物)を残す。全文の控えは `handover/loops-backup-<date>.md`。裁定で生まれた新規事項を追記。
 - collect-queue.md: 昇格 / 台帳と重複 / 解消済み / 一過性 / Skill 候補(同種 2 回で採用・1 回は破棄)に分類し、集計を冒頭に残して空にする。
 - Artifact: 削除は取り消せず、リンクも全員に対して切れる。`Artifact read`(out_dir=`~/.claude/handover/tanaoroshi-<date>-artifacts/`)で HTML を退避してから `Artifact delete` し、`Artifact list` を取り直して消えたことを確認する。
