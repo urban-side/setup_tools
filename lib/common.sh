@@ -35,12 +35,12 @@ copy_if_changed() {
 }
 
 # ディレクトリを丸ごと同期する。リポジトリ側で削除したファイルを配置先からも
-# 消すため、cp -R ではなく rsync --delete を使う。
+# 消すため、cp -R ではなく rsync --delete を使う。4 つ目以降の引数は rsync にそのまま渡す。
 sync_dir() {
   local src="$1" dst="$2" label="${3:-$(basename "$1")}"
   mkdir -p "$dst"
   local out
-  out="$(rsync -rlpt --delete --itemize-changes "${src%/}/" "${dst%/}/")"
+  out="$(rsync -rlpt --delete --itemize-changes "${@:4}" "${src%/}/" "${dst%/}/")"
   if [ -z "$out" ]; then
     skip "${label} は最新です"
   else
