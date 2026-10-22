@@ -30,6 +30,15 @@
 
 `make install`（全部入り）にも `claude` は含まれるので、既存マシンで設定を入れ直したいときは `make macos` / `make home` / `make apps` を個別に叩くこと。
 
+### リポジトリに置かない Skill
+
+`claude/install.sh` の rsync は、次の 2 つを消さずに残す。
+
+- `~/.claude/skills/synced/`（Claude Code が claude.ai から同期して置く Skill）
+- `~/.claude/skills.local` に名前を書いた Skill（同僚から受け取った社内向けの Skill など、公開リポジトリに置けないもの）
+
+`~/.claude/skills.local` には rsync の除外パターンを 1 行に 1 つ、`/some-skill/` の形で書く。ファイルが無ければ `synced/` だけを残す。
+
 ## settings.json の扱い
 
 `settings.hooks.json` は `hooks` と `autoDreamEnabled` だけを持つ断片で、`jq -s '.[0] * .[1]'` で `~/.claude/settings.json` へマージされる。`permissions` や `enabledPlugins` といった個人設定・マシン固有設定はリポジトリで管理せず、マージ時も保持される。`autoDreamEnabled` を `false` にするのは、Claude Code 本体の auto-dream が承認なしでメモリを消し、棚卸しの承認ゲートとぶつかるため。未設定だとサーバー側の既定に従う。

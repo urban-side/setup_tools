@@ -11,8 +11,13 @@ mkdir -p ~/.claude
 copy_if_changed "${SCRIPT_DIR}/CLAUDE.md" ~/.claude/CLAUDE.md "~/.claude/CLAUDE.md"
 copy_if_changed "${SCRIPT_DIR}/AGENT.md"  ~/.claude/AGENT.md  "~/.claude/AGENT.md"
 
-# リポジトリ側で消した Skill / hook を配置先からも消すため rsync --delete で同期する
-sync_dir "${SCRIPT_DIR}/skills" ~/.claude/skills "~/.claude/skills"
+# リポジトリ側で消した Skill / hook を配置先からも消すため rsync --delete で同期する。
+# ただし claude.ai から同期される synced/ と、~/.claude/skills.local に書いたリポジトリ外の Skill は消さない
+skill_excludes=(--exclude=/synced/)
+if [ -f ~/.claude/skills.local ]; then
+  skill_excludes+=(--exclude-from="${HOME}/.claude/skills.local")
+fi
+sync_dir "${SCRIPT_DIR}/skills" ~/.claude/skills "~/.claude/skills" "${skill_excludes[@]}"
 sync_dir "${SCRIPT_DIR}/hooks"  ~/.claude/hooks  "~/.claude/hooks"
 chmod +x ~/.claude/hooks/*.sh
 
