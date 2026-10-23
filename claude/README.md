@@ -39,6 +39,12 @@
 
 `~/.claude/skills.local` には rsync の除外パターンを 1 行に 1 つ、`/some-skill/` の形で書く。ファイルが無ければ `synced/` だけを残す。
 
+### 勤め先に固有の値
+
+チケット管理のワークスペースやチーム、社内ツールの使い方、リポジトリごとの PR 運用といった勤め先に固有の値は、`~/.claude/rules/<勤め先>.md` に置く。Claude Code はこのディレクトリのファイルを全プロジェクトで読み込む。公開リポジトリには置かない。`claude/install.sh` は `rules/` に触れないので、`make claude` を実行してもこのファイルは消えない。
+
+AGENT.md や CLAUDE.md、Skill には値を書かず、このファイルを参照する。転職したら、前の勤め先のファイルを消して新しい勤め先のファイルを置く。
+
 ## settings.json の扱い
 
 `settings.hooks.json` は `hooks` と `autoDreamEnabled` だけを持つ断片で、`jq -s '.[0] * .[1]'` で `~/.claude/settings.json` へマージされる。`permissions` や `enabledPlugins` といった個人設定・マシン固有設定はリポジトリで管理せず、マージ時も保持される。`autoDreamEnabled` を `false` にするのは、Claude Code 本体の auto-dream が承認なしでメモリを消し、棚卸しの承認ゲートとぶつかるため。未設定だとサーバー側の既定に従う。
